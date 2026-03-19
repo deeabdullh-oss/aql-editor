@@ -176,6 +176,51 @@ select.edit-input{cursor:pointer}
 
 #autoSaveStatus{font-size:.7rem;color:#10b981;margin-right:auto}
 
+/* ===== iPad & Tablet responsive ===== */
+@media(max-width:1100px){
+  .content-wrap{flex-direction:column;overflow-y:auto}
+  .card-side{width:100%;border-left:none;border-bottom:1px solid rgba(139,92,246,.1);padding:12px;max-height:50vh;overflow-y:auto}
+  .edit-side{padding:12px 16px}
+  .qc-img{height:200px}
+  .qc-content{font-size:1.4rem;min-height:80px;padding:12px}
+  .eye-btn{font-size:1.1rem;padding:10px}
+  .nav-btn{padding:8px 14px;font-size:.88rem}
+  .select-btn{font-size:1rem;padding:10px}
+  .search-side{width:90vw;left:5vw;top:60px;height:60vh}
+}
+@media(max-width:768px){
+  .header{padding:8px 12px}
+  .header-actions{gap:4px}
+  .tool-btn{padding:5px 10px;font-size:.7rem}
+  h1{font-size:1rem}
+  .tabs-row{padding:4px 10px;gap:3px}
+  .tab{padding:4px 10px;font-size:.68rem}
+  .diff-tabs{padding:3px 10px}
+  .diff-tab{padding:3px 8px;font-size:.65rem}
+  .stats-bar{padding:3px 10px;font-size:.65rem}
+  .content-wrap{flex-direction:column;overflow-y:auto}
+  .card-side{width:100%;border-left:none;padding:10px;max-height:45vh}
+  .edit-side{padding:10px 12px;gap:10px}
+  .qc-img{height:150px}
+  .qc-content{font-size:1.2rem;min-height:60px;padding:10px}
+  .qc-body{padding:12px;gap:8px}
+  .eye-btn{font-size:1rem;padding:8px}
+  .nav-row{gap:6px}
+  .nav-btn{padding:6px 10px;font-size:.8rem}
+  .nav-counter{font-size:.9rem}
+  .select-btn{font-size:.9rem;padding:8px}
+  .diff-badges{gap:4px}
+  .diff-badge{padding:4px 10px;font-size:.75rem}
+  .edit-input{padding:8px 10px;font-size:.85rem}
+  .edit-label{font-size:.78rem}
+  .edit-actions .tool-btn{padding:8px 10px;font-size:.78rem;min-width:80px}
+  .file-tabs-row{padding:6px 10px}
+  .file-tab-btn{padding:6px 12px;font-size:.72rem}
+  .file-tab-add-btn{padding:6px 12px;font-size:.78rem}
+  .modal{padding:16px;max-width:95vw}
+  .search-side{width:95vw;left:2.5vw;top:50px;height:55vh;min-width:auto}
+}
+
 /* scrollbar */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
