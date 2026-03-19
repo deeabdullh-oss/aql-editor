@@ -190,8 +190,8 @@ select.edit-input{cursor:pointer}
     <h1>محرر الأسئلة - عين العقل</h1>
     <div class="header-actions">
       <span id="autoSaveStatus"></span>
-      <label class="tool-btn secondary" style="cursor:pointer;position:relative;overflow:hidden">رفع ملف<input type="file" accept=".xlsx,.xls" onchange="loadFile(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px"></label>
-      <label class="tool-btn secondary" style="cursor:pointer;position:relative;overflow:hidden">+ إضافة ملف<input type="file" accept=".xlsx,.xls" onchange="addFile(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px"></label>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="loadFile(event)" style="margin:0;font-size:.75rem;width:120px">
+      <input type="file" id="addFileInput" accept=".xlsx,.xls,.csv" onchange="addFile(event)" style="margin:0;font-size:.75rem;width:120px">
       <select id="imgSource" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(139,92,246,.3);background:#1c1b38;color:#a78bfa;font-family:inherit;font-size:.78rem;font-weight:700">
         <option value="all">كل المصادر</option>
         <option value="wiki">ويكيبيديا فقط</option>
@@ -221,11 +221,11 @@ select.edit-input{cursor:pointer}
   </div>
 </div>
 
-<label id="uploadZone" class="upload-zone" style="display:block;cursor:pointer;position:relative;overflow:hidden">
+<div id="uploadZone" class="upload-zone">
   <h2>ارفع ملف الأسئلة</h2>
-  <p>اضغط هنا لاختيار ملف Excel (.xlsx)</p>
-  <input type="file" accept=".xlsx,.xls" onchange="loadFile(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px">
-</label>
+  <p>اختر ملف Excel (.xlsx)</p>
+  <input type="file" accept=".xlsx,.xls,.csv" onchange="loadFile(event)" style="margin-top:16px;font-size:1rem">
+</div>
 
 <div id="mainArea">
   <div class="file-tabs-row" id="fileTabsRow"></div>
