@@ -190,10 +190,8 @@ select.edit-input{cursor:pointer}
     <h1>محرر الأسئلة - عين العقل</h1>
     <div class="header-actions">
       <span id="autoSaveStatus"></span>
-      <button class="tool-btn secondary" onclick="document.getElementById('fileInput').click()">رفع ملف</button>
-      <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none">
-      <button class="tool-btn secondary" onclick="document.getElementById('addFileInput').click()">+ إضافة ملف</button>
-      <input type="file" id="addFileInput" accept=".xlsx,.xls" onchange="addFile(event)" style="display:none">
+      <label class="tool-btn secondary" style="cursor:pointer">رفع ملف<input type="file" id="fileInput" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none"></label>
+      <label class="tool-btn secondary" style="cursor:pointer">+ إضافة ملف<input type="file" id="addFileInput" accept=".xlsx,.xls" onchange="addFile(event)" style="display:none"></label>
       <select id="imgSource" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(139,92,246,.3);background:#1c1b38;color:#a78bfa;font-family:inherit;font-size:.78rem;font-weight:700">
         <option value="all">كل المصادر</option>
         <option value="wiki">ويكيبيديا فقط</option>
@@ -223,10 +221,11 @@ select.edit-input{cursor:pointer}
   </div>
 </div>
 
-<div id="uploadZone" class="upload-zone" onclick="document.getElementById('fileInput').click()">
+<label id="uploadZone" class="upload-zone" style="display:block;cursor:pointer">
   <h2>ارفع ملف الأسئلة</h2>
-  <p>اختر ملف Excel (.xlsx) - أو اسحب الملف هنا</p>
-</div>
+  <p>اضغط هنا لاختيار ملف Excel (.xlsx)</p>
+  <input type="file" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none">
+</label>
 
 <div id="mainArea">
   <div class="file-tabs-row" id="fileTabsRow"></div>
@@ -483,8 +482,7 @@ function renderFileTabs() {
       f.name + ' <span style="font-size:.65rem;color:#64748b">(' + count + ')</span>' +
       ' <span class="ftb-close" onclick="closeFileTab(' + i + ',event)">✕</span></button>';
   });
-  html += '<button class="file-tab-add-btn" onclick="document.getElementById(\'addFileInput2\').click()">+ إضافة ملف</button>';
-  html += '<input type="file" id="addFileInput2" accept=".xlsx,.xls" onchange="addFileAsTab(event)" style="display:none">';
+  html += '<label class="file-tab-add-btn" style="cursor:pointer">+ إضافة ملف<input type="file" accept=".xlsx,.xls" onchange="addFileAsTab(event)" style="display:none"></label>';
   wrap.innerHTML = html;
 }
 
