@@ -1,0 +1,2437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محرر الأسئلة - عين العقل</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0c0b1d;--sur:#141328;--sur2:#1c1b38;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
+  --or:#f97316;--or2:#fb923c;--ord:rgba(249,115,22,.15);--pu:#8b5cf6;
+  --cy:#22d3ee;--cyd:rgba(34,211,238,.12);
+  --gr:#10b981;--grd:rgba(16,185,129,.12);
+  --re:#ef4444;
+  --tx:#f1f5f9;--mu:#94a3b8;--mu2:#64748b;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 1400px 1000px at 85% -5%,rgba(139,92,246,.07),transparent),
+             radial-gradient(ellipse 1000px 800px at 5% 100%,rgba(249,115,22,.05),transparent)}
+
+/* Header */
+.header{background:rgba(15,14,42,.95);border-bottom:1px solid rgba(139,92,246,.2);padding:10px 20px;position:relative;z-index:100;backdrop-filter:blur(12px)}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font-size:1.2rem;background:linear-gradient(135deg,#a78bfa,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900}
+.header-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+/* Buttons */
+.tool-btn{padding:7px 16px;border-radius:8px;border:none;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s}
+.tool-btn.primary{background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff}
+.tool-btn.secondary{background:rgba(139,92,246,.1);color:#a78bfa;border:1px solid rgba(139,92,246,.2)}
+.tool-btn.success{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)}
+.tool-btn.danger{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+.tool-btn:hover{filter:brightness(1.2)}
+.tool-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Upload */
+.upload-zone{max-width:450px;margin:80px auto;text-align:center;padding:50px 30px;border:2px dashed rgba(139,92,246,.3);border-radius:20px;background:rgba(139,92,246,.04);cursor:pointer;position:relative;z-index:1}
+.upload-zone:hover{border-color:#8b5cf6;background:rgba(139,92,246,.08)}
+.upload-zone h2{font-size:1.4rem;margin-bottom:10px;color:#a78bfa}
+.upload-zone p{color:#64748b;font-size:.9rem}
+.upload-zone input{display:none}
+
+/* File Tabs */
+.file-tabs-row{display:flex;gap:4px;flex-wrap:wrap;padding:8px 20px;background:rgba(15,14,42,.7);border-bottom:2px solid rgba(249,115,22,.2);align-items:center}
+.file-tab-btn{padding:8px 16px;border-radius:10px 10px 0 0;border:1px solid rgba(249,115,22,.15);border-bottom:none;background:rgba(249,115,22,.04);color:#94a3b8;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
+.file-tab-btn:hover{border-color:rgba(249,115,22,.4);color:#e2e8f0;background:rgba(249,115,22,.08)}
+.file-tab-btn.active{background:linear-gradient(135deg,rgba(249,115,22,.2),rgba(249,115,22,.08));color:#f97316;border-color:rgba(249,115,22,.5);box-shadow:0 -2px 10px rgba(249,115,22,.15)}
+.file-tab-btn .ftb-close{width:18px;height:18px;border-radius:50%;border:none;background:rgba(239,68,68,.15);color:#ef4444;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
+.file-tab-btn .ftb-close:hover{background:rgba(239,68,68,.4);color:#fff}
+.file-tab-add-btn{padding:8px 18px;border-radius:10px 10px 0 0;border:2px dashed rgba(249,115,22,.4);border-bottom:none;background:rgba(249,115,22,.06);color:#f97316;font-family:inherit;font-size:.9rem;font-weight:900;cursor:pointer;transition:all .2s}
+.file-tab-add-btn:hover{background:rgba(249,115,22,.15);border-color:#f97316}
+
+/* Tabs */
+.tabs-row{display:flex;gap:4px;flex-wrap:wrap;padding:6px 20px;background:rgba(15,14,42,.5);border-bottom:1px solid rgba(139,92,246,.1)}
+.tab{padding:5px 14px;border-radius:8px;border:1px solid rgba(139,92,246,.2);background:rgba(139,92,246,.06);color:#94a3b8;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s}
+.tab:hover{border-color:#8b5cf6;color:#e2e8f0}
+.tab.active{background:linear-gradient(135deg,rgba(139,92,246,.3),rgba(139,92,246,.1));color:#fff;border-color:#8b5cf6}
+.tab.selected-del{background:linear-gradient(135deg,rgba(239,68,68,.3),rgba(239,68,68,.1));color:#fca5a5;border-color:#ef4444}
+.tab.done{background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(16,185,129,.06));border-color:rgba(16,185,129,.4);color:#6ee7b7}
+.tab.done.active{background:linear-gradient(135deg,rgba(16,185,129,.35),rgba(16,185,129,.15));border-color:#10b981;color:#fff}
+
+/* Difficulty filter tabs */
+.diff-tabs{display:flex;gap:4px;padding:4px 20px;background:rgba(15,14,42,.3)}
+.diff-tab{padding:4px 12px;border-radius:6px;border:1px solid rgba(139,92,246,.15);background:transparent;color:var(--mu);font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer}
+.diff-tab.active{color:#fff;border-color:#8b5cf6;background:rgba(139,92,246,.2)}
+.diff-tab[data-d="easy"].active{color:#10b981;border-color:#10b981;background:rgba(16,185,129,.1)}
+.diff-tab[data-d="med"].active{color:#f97316;border-color:#f97316;background:rgba(249,115,22,.1)}
+.diff-tab[data-d="hard"].active{color:#ef4444;border-color:#ef4444;background:rgba(239,68,68,.1)}
+
+/* Main layout */
+#mainArea{display:none;flex-direction:column;flex:1;overflow:hidden}
+.content-wrap{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+
+/* LEFT: Card preview */
+.card-side{width:520px;flex-shrink:0;display:flex;flex-direction:column;padding:16px;overflow-y:auto;align-items:center;gap:12px;border-left:1px solid rgba(139,92,246,.1)}
+
+/* Question card - matches game exactly */
+.qc{background:var(--sur);border:2px solid var(--bd);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;width:100%;max-width:500px;transition:border .2s}
+.qc-img{height:300px;background:rgba(139,92,246,.07);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:3rem}
+.qc-img img{width:100%;height:100%;object-fit:contain}
+.qc-body{padding:18px;display:flex;flex-direction:column;gap:12px}
+.qc-content{min-height:120px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:600;line-height:1.65;text-align:center;padding:16px;border-radius:16px;transition:all .3s}
+.qc-content.showing-ans{background:var(--grd);border:1px solid rgba(16,185,129,.2);color:var(--gr);font-weight:800}
+.eye-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--sur2);border:1.5px solid var(--bd2);border-radius:16px;padding:12px;cursor:pointer;font-family:inherit;font-size:1.5rem;font-weight:700;color:var(--mu);transition:all .2s;width:100%}
+.eye-btn:hover{border-color:var(--cy);color:var(--cy)}
+.eye-btn.open{border-color:var(--cy);background:var(--cyd);color:var(--cy)}
+
+/* Navigation */
+.select-btn{width:100%;max-width:500px;padding:12px;border-radius:16px;border:2px solid var(--bd2);background:var(--sur2);color:var(--mu);font-family:inherit;font-size:1.2rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.select-btn:hover{border-color:var(--pu);color:var(--pu)}
+.select-btn.selected{border-color:var(--gr);background:var(--grd);color:var(--gr)}
+.select-btn.selected #selectIcon{color:var(--gr)}
+.select-counter{text-align:center;font-size:.9rem;color:var(--mu);font-weight:700;margin:4px 0}
+.select-counter .count{color:var(--or);font-size:1.1rem}
+.select-counter.full .count{color:var(--gr)}
+.nav-row{display:flex;gap:10px;align-items:center;justify-content:center;width:100%;max-width:500px}
+.nav-btn{padding:10px 20px;border-radius:12px;border:1.5px solid var(--bd2);background:var(--sur2);color:var(--tx);font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;flex:1}
+.nav-btn:hover{border-color:var(--pu);color:var(--pu)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.nav-counter{font-size:1.1rem;font-weight:800;color:var(--or);min-width:80px;text-align:center}
+
+/* Difficulty badges row */
+.diff-badges{display:flex;gap:6px;justify-content:center;width:100%;max-width:500px}
+.diff-badge{padding:6px 16px;border-radius:10px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;border:1.5px solid var(--bd2);background:var(--sur2);color:var(--mu);transition:all .2s}
+.diff-badge:hover{filter:brightness(1.2)}
+.diff-badge.easy{border-color:#10b981;color:#10b981;background:rgba(16,185,129,.08)}
+.diff-badge.med{border-color:#f97316;color:#f97316;background:rgba(249,115,22,.08)}
+.diff-badge.hard{border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,.08)}
+.diff-badge.active-easy{background:#10b981;color:#fff}
+.diff-badge.active-med{background:#f97316;color:#fff}
+.diff-badge.active-hard{background:#ef4444;color:#fff}
+
+/* RIGHT: Edit panel */
+.edit-side{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.edit-section{display:flex;flex-direction:column;gap:5px}
+.edit-label{font-size:.85rem;font-weight:700;color:var(--mu)}
+.edit-input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--bd2);background:var(--sur2);color:var(--tx);font-family:inherit;font-size:.95rem;outline:none;transition:border .2s}
+.edit-input:focus{border-color:var(--pu)}
+.edit-input::placeholder{color:var(--mu2)}
+textarea.edit-input{resize:vertical;min-height:60px;line-height:1.6}
+select.edit-input{cursor:pointer}
+
+.img-field-row{display:flex;gap:6px;align-items:center}
+.img-field-row input{flex:1}
+.img-field-row button{padding:10px 14px;border-radius:10px;border:none;background:var(--pu);color:#fff;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.img-field-row button:hover{filter:brightness(1.15)}
+
+.img-preview{width:100%;max-height:120px;border-radius:10px;border:1px solid var(--bd2);object-fit:contain;background:rgba(139,92,246,.05);display:none}
+.img-preview.show{display:block}
+
+.edit-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.edit-actions .tool-btn{flex:1;min-width:100px;text-align:center;padding:10px 14px;font-size:.88rem}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:6px;flex-wrap:wrap;font-size:.72rem;padding:4px 20px;background:rgba(15,14,42,.3);border-bottom:1px solid rgba(139,92,246,.08)}
+.stat{padding:3px 10px;border-radius:8px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.15)}
+.stat span{font-weight:900;color:#a78bfa}
+.stat.green span{color:#10b981}
+.stat.orange span{color:#f97316}
+
+/* Search panel - draggable floating */
+.search-side{position:fixed;top:80px;left:20px;width:520px;height:70vh;border:1px solid rgba(139,92,246,.3);border-radius:12px;display:flex;flex-direction:column;background:#13122e;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,.5);resize:both;overflow:hidden;min-width:320px;min-height:300px}
+.search-side.hidden{display:none}
+.search-drag{cursor:move;padding:6px 10px;background:rgba(139,92,246,.15);display:flex;justify-content:space-between;align-items:center;user-select:none;border-radius:12px 12px 0 0}
+.search-drag span{font-size:.7rem;color:#64748b}
+.search-drag .close-btn{background:none;border:none;color:#ef4444;font-size:1rem;cursor:pointer;padding:0 4px}
+.search-header{padding:10px;background:rgba(139,92,246,.08);border-bottom:1px solid rgba(139,92,246,.15)}
+.search-header h3{font-size:.85rem;color:#a78bfa;margin-bottom:4px}
+.search-info{font-size:.72rem;color:#94a3b8;margin-bottom:6px;line-height:1.4}
+.search-bar{display:flex;gap:6px}
+.search-bar input{flex:1;padding:7px 10px;border-radius:8px;border:1px solid rgba(139,92,246,.2);background:rgba(15,14,42,.8);color:#f1f5f9;font-family:inherit;font-size:.82rem;outline:none}
+.search-bar input:focus{border-color:#8b5cf6}
+.search-bar button{padding:7px 12px;border-radius:8px;border:none;background:#8b5cf6;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
+.search-hint{font-size:.68rem;color:#f97316;padding:4px 10px;background:rgba(249,115,22,.05)}
+.google-frame{flex:1;border:none;background:#fff}
+.paste-bar{padding:8px 10px;background:rgba(139,92,246,.05);border-top:1px solid rgba(139,92,246,.15);display:flex;gap:6px}
+.paste-bar input{flex:1;padding:7px 10px;border-radius:8px;border:1px solid rgba(139,92,246,.2);background:rgba(15,14,42,.8);color:#f1f5f9;font-family:inherit;font-size:.8rem;outline:none;direction:ltr}
+.paste-bar button{padding:7px 14px;border-radius:8px;border:none;background:#10b981;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1c1b38;border:1px solid rgba(139,92,246,.3);padding:10px 20px;border-radius:10px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;font-size:.85rem}
+.toast.show{opacity:1}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:600;display:none;align-items:center;justify-content:center;padding:32px}
+.modal-bg.on{display:flex}
+.modal{background:var(--sur2);border:1px solid var(--bd2);border-radius:20px;padding:24px 28px;max-width:700px;width:100%;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:1.3rem;font-weight:900;margin-bottom:12px;text-align:center}
+.dup-item{padding:8px 12px;border-radius:8px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);margin-bottom:6px;font-size:.82rem;line-height:1.5}
+.dup-item strong{color:var(--or)}
+
+#autoSaveStatus{font-size:.7rem;color:#10b981;margin-right:auto}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(139,92,246,.2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(139,92,246,.4)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>محرر الأسئلة - عين العقل</h1>
+    <div class="header-actions">
+      <span id="autoSaveStatus"></span>
+      <button class="tool-btn secondary" onclick="document.getElementById('fileInput').click()">رفع ملف</button>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none">
+      <button class="tool-btn secondary" onclick="document.getElementById('addFileInput').click()">+ إضافة ملف</button>
+      <input type="file" id="addFileInput" accept=".xlsx,.xls" onchange="addFile(event)" style="display:none">
+      <select id="imgSource" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(139,92,246,.3);background:#1c1b38;color:#a78bfa;font-family:inherit;font-size:.78rem;font-weight:700">
+        <option value="all">كل المصادر</option>
+        <option value="wiki">ويكيبيديا فقط</option>
+        <option value="commons">ويكيميديا كومنز</option>
+        <option value="unsplash">Unsplash</option>
+        <option value="pexels">Pexels</option>
+        <option value="wikidata">Wikidata</option>
+      </select>
+      <button class="tool-btn primary" onclick="fetchCategoryImages()" id="fetchImgBtn">🔍 جلب صور الفئة</button>
+      <button class="tool-btn danger" onclick="stopFetchImages()" id="stopFetchBtn" style="display:none">⛔ إيقاف</button>
+      <button class="tool-btn danger" onclick="clearCategoryImages()">🗑 حذف صور الفئة</button>
+      <button class="tool-btn success" onclick="toggleDone(currentSheet)" style="background:linear-gradient(135deg,#10b981,#059669)">✅ خلصت الفئة</button>
+      <button class="tool-btn danger" id="toggleSelBtn" onclick="toggleSelectMode()">☐ تحديد فئات</button>
+      <button class="tool-btn primary" id="selectAllBtn" onclick="selectAllSheets()" style="display:none">تحديد الكل</button>
+      <button class="tool-btn danger" id="delSelectedBtn" onclick="deleteSelectedCategories()" style="display:none;background:linear-gradient(135deg,#dc2626,#991b1b)" disabled>🗑 حذف المحدد (0)</button>
+      <button class="tool-btn secondary" id="cancelSelBtn" onclick="toggleSelectMode()" style="display:none">إلغاء</button>
+      <button class="tool-btn primary" onclick="openMergeDialog()" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">🔗 دمج فئات</button>
+      <button class="tool-btn success" onclick="exportCurrentCategory()">تصدير الفئة الحالية</button>
+      <button class="tool-btn success" onclick="exportFile()">تصدير الكل</button>
+      <button class="tool-btn primary" onclick="exportSelected()">تصدير المحدد فقط</button>
+      <button class="tool-btn secondary" onclick="selectAll100()">تحديد أفضل 100</button>
+      <button class="tool-btn danger" onclick="clearSelection()">إلغاء التحديد</button>
+      <button class="tool-btn secondary" onclick="checkDuplicates()">فحص التكرار</button>
+      <button class="tool-btn secondary" onclick="toggleSearch()">بحث صور</button>
+      <button class="tool-btn primary" onclick="showSelectedPage()" style="background:linear-gradient(135deg,#10b981,#059669)">☑ عرض المحددات</button>
+    </div>
+  </div>
+</div>
+
+<div id="uploadZone" class="upload-zone" onclick="document.getElementById('fileInput').click()">
+  <h2>ارفع ملف الأسئلة</h2>
+  <p>اختر ملف Excel (.xlsx) - أو اسحب الملف هنا</p>
+</div>
+
+<div id="mainArea">
+  <div class="file-tabs-row" id="fileTabsRow"></div>
+  <div id="doneCounter" style="display:none;padding:4px 20px;font-size:.75rem;font-weight:700;color:#6ee7b7;background:rgba(16,185,129,.06);border-bottom:1px solid rgba(16,185,129,.1)"></div>
+  <div class="tabs-row" id="tabsRow"></div>
+  <div class="tabs-row" id="doneTabsRow" style="display:none;border-top:1px dashed rgba(16,185,129,.25)"></div>
+  <div class="diff-tabs" id="diffTabs">
+    <button class="diff-tab active" data-d="all" onclick="setDiffFilter('all')">الكل</button>
+    <button class="diff-tab" data-d="easy" onclick="setDiffFilter('easy')">سهل</button>
+    <button class="diff-tab" data-d="med" onclick="setDiffFilter('med')">متوسط</button>
+    <button class="diff-tab" data-d="hard" onclick="setDiffFilter('hard')">صعب</button>
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div id="fetchProgress" style="display:none;padding:6px 20px;background:rgba(139,92,246,.1);border-bottom:1px solid rgba(139,92,246,.2);font-size:.85rem;font-weight:700;color:var(--tx)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="fetchText">جلب الصور...</span>
+      <div style="flex:1;height:6px;border-radius:3px;background:rgba(139,92,246,.15);overflow:hidden"><div id="fetchBar" style="height:100%;border-radius:3px;background:linear-gradient(90deg,#8b5cf6,#10b981);width:0;transition:width .3s"></div></div>
+      <span id="fetchStats" style="color:var(--or)"></span>
+    </div>
+  </div>
+
+  <div class="content-wrap">
+    <!-- LEFT: Question card preview -->
+    <div class="card-side">
+      <div class="qc" id="qCard">
+        <div class="qc-img" id="qcImg"><span style="color:var(--mu2)">لا توجد صورة</span></div>
+        <div class="qc-body">
+          <div class="qc-content" id="qcContent">اختر سؤالاً</div>
+          <button class="eye-btn" id="eyeBtn" onclick="toggleAnswer()">
+            <span>&#128065;</span> كشف الجواب
+          </button>
+        </div>
+      </div>
+
+      <!-- Select button -->
+      <div style="width:100%;max-width:500px;text-align:center">
+        <button id="selectBtn" onclick="doToggleSelect()" style="width:100%;padding:14px;border-radius:16px;border:2px solid rgba(255,255,255,.13);background:#1c1b38;color:#94a3b8;font-family:inherit;font-size:1.3rem;font-weight:700;cursor:pointer">☐ اختر هذا السؤال</button>
+        <div id="selectCounter" style="margin-top:6px;font-size:.85rem;color:#94a3b8;font-weight:700;display:flex;gap:10px;justify-content:center;align-items:center">
+          <span>المحدد: <span id="selCount" style="color:#f97316;font-size:1.1rem">0</span></span>
+          <span style="color:#10b981">سهل: <span id="selEasy">0</span></span>
+          <span style="color:#f97316">متوسط: <span id="selMed">0</span></span>
+          <span style="color:#ef4444">صعب: <span id="selHard">0</span></span>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&rarr; السابق</button>
+        <div class="nav-counter" id="navCounter">0 / 0</div>
+        <button class="nav-btn" id="nextBtn" onclick="navigate(1)">التالي &larr;</button>
+      </div>
+
+      <div class="diff-badges" id="diffBadges">
+        <button class="diff-badge easy" onclick="setQuestionDiff('easy')">سهل</button>
+        <button class="diff-badge med" onclick="setQuestionDiff('med')">متوسط</button>
+        <button class="diff-badge hard" onclick="setQuestionDiff('hard')">صعب</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Edit panel -->
+    <div class="edit-side" id="editSide">
+      <div class="edit-section">
+        <label class="edit-label">المستوى</label>
+        <select class="edit-input" id="edLevel" onchange="onEditChange()">
+          <option value="easy">سهل</option>
+          <option value="med">متوسط</option>
+          <option value="hard">صعب</option>
+        </select>
+      </div>
+
+      <div class="edit-section">
+        <label class="edit-label">السؤال</label>
+        <textarea class="edit-input" id="edQuestion" rows="3" placeholder="نص السؤال..." oninput="autoResize(this);onEditChange()"></textarea>
+      </div>
+
+      <div class="edit-section">
+        <label class="edit-label">صورة السؤال</label>
+        <div class="img-field-row">
+          <input class="edit-input" id="edQImg" placeholder="رابط صورة السؤال..." oninput="onEditChange()" dir="ltr">
+          <button onclick="openSearchFor('q')">بحث</button>
+        </div>
+        <img class="img-preview" id="previewQImg" onclick="window.open(this.src,'_blank')">
+      </div>
+
+      <div class="edit-section">
+        <label class="edit-label">الجواب</label>
+        <textarea class="edit-input" id="edAnswer" rows="2" placeholder="نص الجواب..." oninput="autoResize(this);onEditChange()"></textarea>
+      </div>
+
+      <div class="edit-section">
+        <label class="edit-label">صورة الجواب</label>
+        <div class="img-field-row">
+          <input class="edit-input" id="edAImg" placeholder="رابط صورة الجواب..." oninput="onEditChange()" dir="ltr">
+          <button onclick="openSearchFor('a')">بحث</button>
+        </div>
+        <img class="img-preview" id="previewAImg" onclick="window.open(this.src,'_blank')">
+      </div>
+
+      <div class="edit-actions">
+        <button class="tool-btn success" onclick="saveCurrentEdit()">حفظ التعديلات</button>
+        <button class="tool-btn primary" onclick="addNewQuestion()">+ سؤال جديد</button>
+        <button class="tool-btn danger" onclick="deleteCurrentQuestion()">حذف السؤال</button>
+      </div>
+
+      <div style="margin-top:8px;padding-top:10px;border-top:1px solid var(--bd)">
+        <div class="edit-label" style="margin-bottom:6px">بحث سريع في الأسئلة</div>
+        <input class="edit-input" id="quickSearch" placeholder="ابحث في أسئلة هذا الشيت..." oninput="onQuickSearch()">
+        <div id="searchResults" style="margin-top:6px;max-height:200px;overflow-y:auto;font-size:.78rem"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search Panel (floating, draggable) -->
+<div class="search-side hidden" id="searchSide">
+  <div class="search-drag" id="searchDrag">
+    <span>اسحب لتحريك</span>
+    <button class="close-btn" onclick="toggleSearch()">&#10005;</button>
+  </div>
+  <div class="search-header">
+    <h3 id="searchTitle">بحث صور قوقل</h3>
+    <div class="search-info" id="searchInfo">اضغط "بحث" بجانب حقل الصورة</div>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="ابحث عن صورة..." onkeydown="if(event.key==='Enter')doGoogleSearch()">
+      <button onclick="doGoogleSearch()">بحث</button>
+      <button onclick="doWikiSearch()" style="background:#f97316">ويكي</button>
+    </div>
+  </div>
+  <div class="search-hint">ابحث بالاسم → اضغط كليك يمين على الصورة → نسخ عنوان الصورة → الصقه بالأسفل</div>
+  <iframe class="google-frame" id="googleFrame" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" referrerpolicy="no-referrer"></iframe>
+  <div class="paste-bar">
+    <input type="text" id="pasteUrl" placeholder="الصق رابط الصورة هنا..." onkeydown="if(event.key==='Enter')applyUrl()">
+    <button onclick="applyUrl()">تطبيق</button>
+  </div>
+</div>
+
+<!-- Selected Questions Page -->
+<div class="modal-bg" id="selModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal" style="max-width:95%;width:1400px;max-height:90vh;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 style="margin:0">☑ الأسئلة المحددة</h3>
+      <div style="display:flex;gap:6px">
+        <button class="tool-btn primary" onclick="exportSelected()">تصدير المحدد</button>
+        <button class="tool-btn secondary" onclick="document.getElementById('selModal').classList.remove('on')">إغلاق</button>
+      </div>
+    </div>
+    <div id="selStats" style="font-size:.8rem;color:var(--mu);margin-bottom:8px"></div>
+    <div id="selContent" style="flex:1;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Duplicates Modal -->
+<div class="modal-bg" id="dupModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal">
+    <h3>فحص التكرار</h3>
+    <div id="dupContent"></div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="tool-btn secondary" onclick="document.getElementById('dupModal').classList.remove('on')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+let allData = {};
+let currentSheet = '';
+let currentIndex = 0;
+let diffFilter = 'all';
+let filteredIndices = [];
+let showingAnswer = false;
+let searchTarget = 'q'; // 'q' or 'a'
+let imageCache = {};
+let loadedFileName = 'أسئلة_محررة.xlsx';
+
+const STORAGE_KEY = 'aql_editor_data';
+
+// ===== Multi-file tabs =====
+let allFiles = []; // [{id, name, allData, currentSheet, currentIndex, doneSheets, imageCache}]
+let activeFileIdx = 0;
+let fileIdSeq = 0;
+
+function createFileSlot(name, data) {
+  const slot = {
+    id: fileIdSeq++,
+    name: name || 'ملف ' + (allFiles.length + 1),
+    allData: data || {},
+    currentSheet: Object.keys(data || {})[0] || '',
+    currentIndex: 0,
+    doneSheets: new Set(),
+    imageCache: {}
+  };
+  allFiles.push(slot);
+  activeFileIdx = allFiles.length - 1;
+  syncFromSlot();
+  return slot;
+}
+
+function syncFromSlot() {
+  const s = allFiles[activeFileIdx];
+  if (!s) return;
+  allData = s.allData;
+  currentSheet = s.currentSheet;
+  currentIndex = s.currentIndex;
+  doneSheets = s.doneSheets;
+  imageCache = s.imageCache;
+  loadedFileName = s.name;
+}
+
+function syncToSlot() {
+  const s = allFiles[activeFileIdx];
+  if (!s) return;
+  s.allData = allData;
+  s.currentSheet = currentSheet;
+  s.currentIndex = currentIndex;
+  s.doneSheets = doneSheets;
+  s.imageCache = imageCache;
+}
+
+function switchFileTab(idx) {
+  syncToSlot();
+  activeFileIdx = idx;
+  syncFromSlot();
+  renderFileTabs();
+  renderTabs();
+  buildFilteredIndices();
+  showQuestion();
+  updateStats();
+}
+
+function closeFileTab(idx, ev) {
+  ev.stopPropagation();
+  if (allFiles.length <= 1) { toast('لازم يبقى ملف واحد على الأقل'); return; }
+  if (!confirm('إغلاق "' + allFiles[idx].name + '"؟')) return;
+  allFiles.splice(idx, 1);
+  if (activeFileIdx >= allFiles.length) activeFileIdx = allFiles.length - 1;
+  syncFromSlot();
+  renderFileTabs();
+  renderTabs();
+  buildFilteredIndices();
+  showQuestion();
+  updateStats();
+  savePersistent();
+}
+
+function renderFileTabs() {
+  const wrap = document.getElementById('fileTabsRow');
+  if (!wrap) return;
+  let html = '';
+  allFiles.forEach((f, i) => {
+    const cls = i === activeFileIdx ? 'file-tab-btn active' : 'file-tab-btn';
+    const count = Object.keys(f.allData).length;
+    html += '<button class="' + cls + '" onclick="switchFileTab(' + i + ')">' +
+      f.name + ' <span style="font-size:.65rem;color:#64748b">(' + count + ')</span>' +
+      ' <span class="ftb-close" onclick="closeFileTab(' + i + ',event)">✕</span></button>';
+  });
+  html += '<button class="file-tab-add-btn" onclick="document.getElementById(\'addFileInput2\').click()">+ إضافة ملف</button>';
+  html += '<input type="file" id="addFileInput2" accept=".xlsx,.xls" onchange="addFileAsTab(event)" style="display:none">';
+  wrap.innerHTML = html;
+}
+
+function addFileAsTab(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const wb = XLSX.read(ev.target.result, { type: 'array' });
+    const newData = {};
+    wb.SheetNames.forEach(name => {
+      newData[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+    });
+    syncToSlot();
+    const name = file.name.replace(/\.(xlsx|xls)$/i, '');
+    createFileSlot(name, newData);
+    renderFileTabs();
+    showUI();
+    savePersistent();
+    toast('تم فتح ' + file.name + ' في تاب جديد');
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+}
+
+// ===== Column detection =====
+function detectColumns(sheet) {
+  if (!sheet || sheet.length === 0) return null;
+
+  // Check if this is the 2-header-row format (row0: #,سهل,,,,,متوسط,,,,,صعب,,,,)
+  // row1: ,السؤال,صورة السؤال,الجواب,صورة الجواب,...
+  const row0 = (sheet[0] || []).map(h => String(h || '').trim());
+  const row1 = (sheet[1] || []).map(h => String(h || '').trim());
+
+  // Detect 2-header format: row0 has سهل/متوسط/صعب, row1 has السؤال/الجواب
+  const is2Header = row0.some(h => /^سهل$|^متوسط$|^صعب$/i.test(h)) &&
+                     row1.some(h => /سؤال|جواب/i.test(h));
+
+  if (is2Header) {
+    // Standard game format: 13 columns
+    // Col 0: #
+    // Cols 1-4: سهل (السؤال, صورة السؤال, الجواب, صورة الجواب)
+    // Cols 5-8: متوسط (السؤال, صورة السؤال, الجواب, صورة الجواب)
+    // Cols 9-12: صعب (السؤال, صورة السؤال, الجواب, صورة الجواب)
+    return {
+      twoHeaders: true,
+      easyQ: 1, easyQImg: 2, easyA: 3, easyAImg: 4,
+      medQ: 5, medQImg: 6, medA: 7, medAImg: 8,
+      hardQ: 9, hardQImg: 10, hardA: 11, hardAImg: 12,
+      // Legacy compat
+      q: 1, qImg: 2
+    };
+  }
+
+  // Fallback: single header row
+  const cols = { q: -1, qImg: -1, easyA: -1, easyAImg: -1, medA: -1, medAImg: -1, hardA: -1, hardAImg: -1, twoHeaders: false };
+  const hl = row0;
+
+  for (let i = 0; i < hl.length; i++) {
+    const h = hl[i];
+    if (/سؤال|question/i.test(h) && !/صور/i.test(h) && !/إجابة|جواب|answer/i.test(h)) cols.q = i;
+    else if (/صورة.*سؤال|صور.*سؤال|q.*img|question.*img/i.test(h)) cols.qImg = i;
+    else if (/سهل.*صور|easy.*img/i.test(h)) cols.easyAImg = i;
+    else if (/سهل|easy/i.test(h) && !/صور/i.test(h)) cols.easyA = i;
+    else if (/متوسط.*صور|med.*img/i.test(h)) cols.medAImg = i;
+    else if (/متوسط|medium|med/i.test(h) && !/صور/i.test(h)) cols.medA = i;
+    else if (/صعب.*صور|hard.*img/i.test(h)) cols.hardAImg = i;
+    else if (/صعب|hard/i.test(h) && !/صور/i.test(h)) cols.hardA = i;
+  }
+
+  if (cols.q === -1) cols.q = 0;
+  if (cols.qImg === -1 && hl.length > 1) cols.qImg = 1;
+  if (cols.easyA === -1 && hl.length > 2) cols.easyA = 2;
+  if (cols.easyAImg === -1 && hl.length > 3) cols.easyAImg = 3;
+
+  return cols;
+}
+
+// Returns total number of INDIVIDUAL questions (each level counts separately)
+function getQuestionCount(sheetName) {
+  const sheet = allData[sheetName];
+  if (!sheet) return 0;
+  const cols = detectColumns(sheet);
+  if (!cols) return 0;
+  const offset = cols.twoHeaders ? 2 : 1;
+  let count = 0;
+  for (let r = offset; r < sheet.length; r++) {
+    const row = sheet[r];
+    if (!row) continue;
+    const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+    if (cols.twoHeaders) {
+      if (val(cols.easyQ)) count++;
+      if (val(cols.medQ)) count++;
+      if (val(cols.hardQ)) count++;
+    } else {
+      if (val(cols.q)) count++;
+    }
+  }
+  return count;
+}
+
+function getRowCount(sheetName) {
+  const sheet = allData[sheetName];
+  if (!sheet || sheet.length <= 1) return 0;
+  const cols = detectColumns(sheet);
+  const offset = (cols && cols.twoHeaders) ? 2 : 1;
+  return Math.max(0, sheet.length - offset);
+}
+
+let currentDiffFilter = 'all';
+
+function getQuestionAt(sheetName, rowIdx, forceLevel) {
+  const sheet = allData[sheetName];
+  if (!sheet) return null;
+  const cols = detectColumns(sheet);
+  if (!cols) return null;
+
+  const dataOffset = cols.twoHeaders ? 2 : 1;
+  const row = sheet[rowIdx + dataOffset];
+  if (!row) return null;
+
+  const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+
+  if (cols.twoHeaders) {
+    const level = forceLevel || 'easy';
+    if (level === 'easy' && val(cols.easyQ)) {
+      return { level: 'easy', q: val(cols.easyQ), qImg: val(cols.easyQImg), answer: val(cols.easyA), aImg: val(cols.easyAImg), rowIdx };
+    }
+    if (level === 'med' && val(cols.medQ)) {
+      return { level: 'med', q: val(cols.medQ), qImg: val(cols.medQImg), answer: val(cols.medA), aImg: val(cols.medAImg), rowIdx };
+    }
+    if (level === 'hard' && val(cols.hardQ)) {
+      return { level: 'hard', q: val(cols.hardQ), qImg: val(cols.hardQImg), answer: val(cols.hardA), aImg: val(cols.hardAImg), rowIdx };
+    }
+    // Fallback: return first available
+    if (val(cols.easyQ)) return { level: 'easy', q: val(cols.easyQ), qImg: val(cols.easyQImg), answer: val(cols.easyA), aImg: val(cols.easyAImg), rowIdx };
+    if (val(cols.medQ)) return { level: 'med', q: val(cols.medQ), qImg: val(cols.medQImg), answer: val(cols.medA), aImg: val(cols.medAImg), rowIdx };
+    if (val(cols.hardQ)) return { level: 'hard', q: val(cols.hardQ), qImg: val(cols.hardQImg), answer: val(cols.hardA), aImg: val(cols.hardAImg), rowIdx };
+    return null;
+  }
+
+  // Single header fallback
+  return { q: val(cols.q || 0), qImg: val(cols.qImg || 1), answer: val(cols.easyA || 2), aImg: val(cols.easyAImg || 3), level: 'easy', rowIdx };
+}
+
+function setQuestionAt(sheetName, rowIdx, data) {
+  const sheet = allData[sheetName];
+  if (!sheet) return;
+  const cols = detectColumns(sheet);
+  if (!cols) return;
+  const offset = cols.twoHeaders ? 2 : 1;
+  const ri = rowIdx + offset;
+  if (!sheet[ri]) sheet[ri] = [];
+  const row = sheet[ri];
+
+  const set = (i, v) => { if (i >= 0) { while (row.length <= i) row.push(''); row[i] = v; } };
+
+  if (cols.twoHeaders) {
+    // Only update the specific level columns - don't clear other levels!
+    if (data.level === 'easy') {
+      set(cols.easyQ, data.q); set(cols.easyQImg, data.qImg);
+      set(cols.easyA, data.answer); set(cols.easyAImg, data.aImg);
+    } else if (data.level === 'med') {
+      set(cols.medQ, data.q); set(cols.medQImg, data.qImg);
+      set(cols.medA, data.answer); set(cols.medAImg, data.aImg);
+    } else if (data.level === 'hard') {
+      set(cols.hardQ, data.q); set(cols.hardQImg, data.qImg);
+      set(cols.hardA, data.answer); set(cols.hardAImg, data.aImg);
+    }
+  } else {
+    set(cols.q, data.q); set(cols.qImg, data.qImg);
+    set(cols.easyA, ''); set(cols.medA, ''); set(cols.hardA, '');
+    if (data.level === 'easy') { set(cols.easyA, data.answer); set(cols.easyAImg, data.aImg); }
+    else if (data.level === 'med') { set(cols.medA, data.answer); set(cols.medAImg, data.aImg); }
+    else if (data.level === 'hard') { set(cols.hardA, data.answer); set(cols.hardAImg, data.aImg); }
+  }
+}
+
+// Auto-save when navigating away from a question
+function autoSaveCurrent() {
+  if (filteredIndices.length === 0) return;
+  const entry = filteredIndices[currentIndex];
+  if (!entry) return;
+  const data = {
+    q: document.getElementById('edQuestion').value.trim(),
+    qImg: document.getElementById('edQImg').value.trim(),
+    answer: document.getElementById('edAnswer').value.trim(),
+    aImg: document.getElementById('edAImg').value.trim(),
+    level: entry.level
+  };
+  if (data.q) setQuestionAt(currentSheet, entry.rowIdx, data);
+}
+
+// ===== Persistence =====
+function savePersistent() {
+  try {
+    syncToSlot();
+    const filesData = allFiles.map(f => ({
+      id: f.id, name: f.name, allData: f.allData,
+      currentSheet: f.currentSheet, currentIndex: f.currentIndex,
+      doneSheets: Array.from(f.doneSheets), imageCache: f.imageCache
+    }));
+    const payload = JSON.stringify({ allData, imageCache, loadedFileName, currentSheet, currentIndex, SEL, doneSheets: Array.from(doneSheets), _files: filesData, _activeFileIdx: activeFileIdx, _fileIdSeq: fileIdSeq });
+    const sizeMB = (new Blob([payload]).size / 1024 / 1024).toFixed(1);
+
+    // Try localStorage first
+    try {
+      localStorage.setItem(STORAGE_KEY, payload);
+      const now = new Date().toLocaleTimeString();
+      const el = document.getElementById('autoSaveStatus');
+      if (el) el.textContent = '✓ حفظ ' + now + ' (' + sizeMB + 'MB)';
+    } catch(storageErr) {
+      // localStorage full - use IndexedDB as fallback
+      saveToIndexedDB(payload);
+      const now = new Date().toLocaleTimeString();
+      const el = document.getElementById('autoSaveStatus');
+      if (el) el.textContent = '✓ حفظ (IndexedDB) ' + now + ' (' + sizeMB + 'MB)';
+    }
+  } catch(e) {
+    console.error('Save error:', e);
+    const el = document.getElementById('autoSaveStatus');
+    if (el) el.textContent = '✗ خطأ في الحفظ!';
+  }
+}
+
+// IndexedDB fallback for large data
+function saveToIndexedDB(payload) {
+  const req = indexedDB.open('AQLEditor', 1);
+  req.onupgradeneeded = (e) => { e.target.result.createObjectStore('data'); };
+  req.onsuccess = (e) => {
+    const db = e.target.result;
+    const tx = db.transaction('data', 'readwrite');
+    tx.objectStore('data').put(payload, 'saved');
+  };
+}
+
+function loadFromIndexedDB() {
+  return new Promise((resolve) => {
+    const req = indexedDB.open('AQLEditor', 1);
+    req.onupgradeneeded = (e) => { e.target.result.createObjectStore('data'); };
+    req.onsuccess = (e) => {
+      const db = e.target.result;
+      try {
+        const tx = db.transaction('data', 'readonly');
+        const getReq = tx.objectStore('data').get('saved');
+        getReq.onsuccess = () => resolve(getReq.result || null);
+        getReq.onerror = () => resolve(null);
+      } catch(err) { resolve(null); }
+    };
+    req.onerror = () => resolve(null);
+  });
+}
+
+function restoreFromObj(obj) {
+  // استعادة تابات الملفات لو موجودة
+  if (obj._files && obj._files.length > 0) {
+    allFiles = obj._files.map(f => ({
+      id: f.id, name: f.name, allData: f.allData,
+      currentSheet: f.currentSheet, currentIndex: f.currentIndex,
+      doneSheets: new Set(f.doneSheets || []), imageCache: f.imageCache || {}
+    }));
+    activeFileIdx = obj._activeFileIdx || 0;
+    fileIdSeq = obj._fileIdSeq || allFiles.length;
+    if (activeFileIdx >= allFiles.length) activeFileIdx = 0;
+    syncFromSlot();
+  } else {
+    // توافق مع البيانات القديمة (بدون تابات)
+    allData = obj.allData;
+    imageCache = obj.imageCache || {};
+    doneSheets = new Set(obj.doneSheets || []);
+    loadedFileName = obj.loadedFileName || 'أسئلة_محررة.xlsx';
+    currentSheet = obj.currentSheet || Object.keys(allData)[0];
+    currentIndex = obj.currentIndex || 0;
+    allFiles = [{ id: 0, name: loadedFileName.replace(/\.(xlsx|xls)$/i,''), allData, currentSheet, currentIndex, doneSheets, imageCache }];
+    activeFileIdx = 0;
+    fileIdSeq = 1;
+  }
+  SEL = obj.SEL || {};
+}
+
+async function loadPersistent() {
+  // Try localStorage first
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const obj = JSON.parse(saved);
+      if (obj.allData && Object.keys(obj.allData).length > 0) {
+        restoreFromObj(obj);
+        return true;
+      }
+    }
+  } catch(e) {}
+
+  // Try IndexedDB fallback
+  try {
+    const saved = await loadFromIndexedDB();
+    if (saved) {
+      const obj = JSON.parse(saved);
+      if (obj.allData && Object.keys(obj.allData).length > 0) {
+        restoreFromObj(obj);
+        return true;
+      }
+    }
+  } catch(e) {}
+
+  return false;
+}
+
+setInterval(savePersistent, 10000);
+window.addEventListener('beforeunload', savePersistent);
+
+// ===== UI Helpers =====
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function isUrl(v) { return v && typeof v === 'string' && (v.startsWith('http://') || v.startsWith('https://')); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ===== File Loading =====
+function loadFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const wb = XLSX.read(ev.target.result, { type: 'array' });
+    const newData = {};
+    wb.SheetNames.forEach(name => {
+      newData[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+    });
+    // لو أول ملف أو الملف الحالي فاضي، استبدله
+    if (allFiles.length === 0 || Object.keys(allData).length === 0) {
+      if (allFiles.length === 0) createFileSlot(file.name.replace(/\.(xlsx|xls)$/i,''), newData);
+      else { allData = newData; allFiles[activeFileIdx].allData = newData; allFiles[activeFileIdx].name = file.name.replace(/\.(xlsx|xls)$/i,''); }
+    } else {
+      syncToSlot();
+      createFileSlot(file.name.replace(/\.(xlsx|xls)$/i,''), newData);
+    }
+    currentSheet = Object.keys(allData)[0] || '';
+    currentIndex = 0;
+    loadedFileName = file.name;
+    renderFileTabs();
+    showUI();
+    savePersistent();
+    toast('تم تحميل ' + file.name);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function addFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const wb = XLSX.read(ev.target.result, { type: 'array' });
+    wb.SheetNames.forEach(name => {
+      const key = allData[name] ? name + '_2' : name;
+      allData[key] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1 });
+    });
+    renderTabs();
+    updateStats();
+    savePersistent();
+    toast('تمت إضافة ' + file.name);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showUI() {
+  document.getElementById('uploadZone').style.display = 'none';
+  document.getElementById('mainArea').style.display = 'flex';
+  renderFileTabs();
+  renderTabs();
+  buildFilteredIndices();
+  showQuestion();
+  updateStats();
+}
+
+// ===== Tabs =====
+let selectMode = false;
+let selectedSheets = new Set();
+let doneSheets = new Set();
+
+function renderTabs() {
+  const wrap = document.getElementById('tabsRow');
+  const doneWrap = document.getElementById('doneTabsRow');
+  const counter = document.getElementById('doneCounter');
+  wrap.innerHTML = '';
+  doneWrap.innerHTML = '';
+
+  const allNames = Object.keys(allData);
+  const pendingNames = allNames.filter(n => !doneSheets.has(n));
+  const doneNames = allNames.filter(n => doneSheets.has(n));
+
+  // عدّاد
+  if (doneNames.length > 0) {
+    counter.style.display = 'block';
+    counter.innerHTML = '✅ مكتملة: <span style="color:#fff">' + doneNames.length + '</span> / ' + allNames.length + ' فئة';
+    doneWrap.style.display = 'flex';
+    // label
+    var lbl = document.createElement('span');
+    lbl.style.cssText = 'color:#6ee7b7;font-size:.7rem;font-weight:800;padding:5px 8px;white-space:nowrap';
+    lbl.textContent = '✅ مكتملة:';
+    doneWrap.appendChild(lbl);
+  } else {
+    counter.style.display = 'none';
+    doneWrap.style.display = 'none';
+  }
+
+  function makeBtn(name, isDone) {
+    const btn = document.createElement('button');
+    if (selectMode) {
+      const isChecked = selectedSheets.has(name);
+      btn.className = 'tab' + (isChecked ? ' selected-del' : '');
+      btn.innerHTML = (isChecked ? '☑' : '☐') + ' ' + name + ' (' + getQuestionCount(name) + ')';
+      btn.onclick = () => {
+        if (selectedSheets.has(name)) selectedSheets.delete(name);
+        else selectedSheets.add(name);
+        renderTabs();
+        updateDeleteCount();
+      };
+    } else {
+      btn.className = 'tab' + (name === currentSheet ? ' active' : '') + (isDone ? ' done' : '');
+      btn.innerHTML = (isDone ? '✅ ' : '') + name + ' (' + getQuestionCount(name) + ')';
+      btn.onclick = () => switchSheet(name);
+      btn.ondblclick = (e) => { e.preventDefault(); renameSheet(name); };
+      btn.oncontextmenu = (e) => { e.preventDefault(); toggleDone(name); };
+      btn.title = 'كلك: فتح | دبل كلك: تعديل الاسم | كلك يمين: خلصت';
+    }
+    return btn;
+  }
+
+  // الفئات الغير مكتملة
+  pendingNames.forEach(name => wrap.appendChild(makeBtn(name, false)));
+
+  // الفئات المكتملة
+  doneNames.forEach(name => doneWrap.appendChild(makeBtn(name, true)));
+}
+
+function openMergeDialog() {
+  var names = Object.keys(allData);
+  if (names.length < 2) return toast('لازم يكون عندك فئتين على الأقل');
+
+  var html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)" id="mergeOverlay" onclick="if(event.target===this)this.remove()">';
+  html += '<div style="background:#1c1b38;border:2px solid rgba(99,102,241,.3);border-radius:16px;padding:24px 28px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">';
+  html += '<h3 style="color:#a5b4fc;font-size:1.1rem;margin-bottom:14px">🔗 دمج فئات</h3>';
+  html += '<p style="color:#94a3b8;font-size:.8rem;margin-bottom:12px">اختر الفئات اللي تبي تدمجها مع بعض:</p>';
+
+  names.forEach(function(name) {
+    html += '<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid rgba(99,102,241,.1);margin-bottom:4px" onmouseover="this.style.borderColor=\'rgba(99,102,241,.3)\'" onmouseout="this.style.borderColor=\'rgba(99,102,241,.1)\'">';
+    html += '<input type="checkbox" value="' + name.replace(/"/g,'&quot;') + '" class="merge-cb" style="width:16px;height:16px;accent-color:#6366f1">';
+    html += '<span style="color:#e2e8f0;font-size:.85rem;font-weight:700">' + name + '</span>';
+    html += '<span style="color:#64748b;font-size:.7rem;margin-right:auto">(' + getQuestionCount(name) + ' سؤال)</span>';
+    html += '</label>';
+  });
+
+  html += '<div style="margin-top:14px"><label style="color:#94a3b8;font-size:.8rem;display:block;margin-bottom:4px">اسم الفئة الجديدة:</label>';
+  html += '<input type="text" id="mergeNewName" placeholder="اكتب اسم الفئة المدمجة..." style="width:100%;padding:8px 12px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:8px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none"></div>';
+
+  html += '<div style="display:flex;gap:8px;margin-top:16px">';
+  html += '<button onclick="executeMerge()" style="flex:1;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer">دمج</button>';
+  html += '<button onclick="document.getElementById(\'mergeOverlay\').remove()" style="padding:10px 20px;background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);border-radius:10px;font-family:inherit;font-size:.85rem;cursor:pointer">إلغاء</button>';
+  html += '</div></div></div>';
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function executeMerge() {
+  var checked = document.querySelectorAll('.merge-cb:checked');
+  if (checked.length < 2) return toast('اختر فئتين على الأقل');
+
+  var newName = document.getElementById('mergeNewName').value.trim();
+  var selectedNames = Array.from(checked).map(function(cb) { return cb.value; });
+
+  if (!newName) newName = selectedNames.join(' + ');
+  if (allData[newName] && !selectedNames.includes(newName)) return toast('فيه فئة بنفس الاسم!');
+
+  // تحديد الفورمات (twoHeaders)
+  var firstSheet = allData[selectedNames[0]];
+  var cols = detectColumns(firstSheet);
+  var isTwoHeaders = cols && cols.twoHeaders;
+
+  // دمج الأسئلة
+  var mergedRows = [];
+  if (isTwoHeaders) {
+    mergedRows.push(firstSheet[0]); // header1
+    mergedRows.push(firstSheet[1]); // header2
+  } else {
+    mergedRows.push(firstSheet[0]); // header
+  }
+
+  var totalQ = 0;
+  var offset = isTwoHeaders ? 2 : 1;
+
+  selectedNames.forEach(function(name) {
+    var sheet = allData[name];
+    var sOffset = (detectColumns(sheet) && detectColumns(sheet).twoHeaders) ? 2 : 1;
+    for (var r = sOffset; r < sheet.length; r++) {
+      if (sheet[r]) {
+        var row = sheet[r].slice();
+        row[0] = mergedRows.length - offset + 1; // رقم تسلسلي جديد
+        mergedRows.push(row);
+        totalQ++;
+      }
+    }
+  });
+
+  // حذف الفئات القديمة وإضافة الجديدة
+  selectedNames.forEach(function(name) {
+    if (name !== newName) {
+      delete allData[name];
+      doneSheets.delete(name);
+      delete SEL[name];
+    }
+  });
+
+  allData[newName] = mergedRows;
+  currentSheet = newName;
+  currentIndex = 0;
+
+  document.getElementById('mergeOverlay').remove();
+  buildFilteredIndices();
+  renderTabs();
+  showQuestion();
+  updateStats();
+  savePersistent();
+  toast('تم دمج ' + selectedNames.length + ' فئات في "' + newName + '" (' + totalQ + ' سؤال)');
+}
+
+function renameSheet(oldName) {
+  var newName = prompt('عدّل اسم الفئة:', oldName);
+  if (!newName || !newName.trim() || newName.trim() === oldName) return;
+  newName = newName.trim();
+  if (allData[newName]) return toast('فيه فئة بنفس الاسم!');
+  // نقل الداتا
+  allData[newName] = allData[oldName];
+  delete allData[oldName];
+  // تحديث doneSheets
+  if (doneSheets.has(oldName)) { doneSheets.delete(oldName); doneSheets.add(newName); }
+  // تحديث SEL
+  if (SEL[oldName]) { SEL[newName] = SEL[oldName]; delete SEL[oldName]; }
+  // تحديث الشيت الحالي
+  if (currentSheet === oldName) currentSheet = newName;
+  renderTabs();
+  updateStats();
+  savePersistent();
+  toast('تم تغيير الاسم إلى "' + newName + '"');
+}
+
+function toggleDone(name) {
+  if (doneSheets.has(name)) doneSheets.delete(name);
+  else doneSheets.add(name);
+  renderTabs();
+  savePersistent();
+  toast(doneSheets.has(name) ? '✅ تم تحديد "' + name + '" كمكتملة' : 'تم إلغاء تحديد "' + name + '"');
+}
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  selectedSheets.clear();
+  document.getElementById('delSelectedBtn').style.display = selectMode ? 'inline-flex' : 'none';
+  document.getElementById('selectAllBtn').style.display = selectMode ? 'inline-flex' : 'none';
+  document.getElementById('cancelSelBtn').style.display = selectMode ? 'inline-flex' : 'none';
+  document.getElementById('toggleSelBtn').textContent = selectMode ? '✓ وضع التحديد' : '☐ تحديد فئات';
+  document.getElementById('toggleSelBtn').style.background = selectMode ? 'linear-gradient(135deg,#f97316,#ea580c)' : '';
+  updateDeleteCount();
+  renderTabs();
+}
+
+function selectAllSheets() {
+  var all = Object.keys(allData);
+  if (selectedSheets.size === all.length) {
+    selectedSheets.clear();
+  } else {
+    all.forEach(n => selectedSheets.add(n));
+  }
+  renderTabs();
+  updateDeleteCount();
+}
+
+function updateDeleteCount() {
+  var btn = document.getElementById('delSelectedBtn');
+  btn.textContent = '🗑 حذف المحدد (' + selectedSheets.size + ')';
+  btn.disabled = selectedSheets.size === 0;
+}
+
+function deleteSelectedCategories() {
+  if (selectedSheets.size === 0) return toast('لم تحدد أي فئة');
+  var total = Object.keys(allData).length;
+  if (selectedSheets.size >= total) return toast('لا يمكن حذف جميع الفئات — لازم تبقى فئة وحدة على الأقل');
+  if (!confirm('هل أنت متأكد من حذف ' + selectedSheets.size + ' فئة؟\n\n' + Array.from(selectedSheets).join('\n') + '\n\nسيتم حذفها نهائياً.')) return;
+  var count = 0;
+  selectedSheets.forEach(name => { delete allData[name]; count++; });
+  selectedSheets.clear();
+  selectMode = false;
+  var remaining = Object.keys(allData);
+  currentSheet = remaining[0];
+  currentIndex = 0;
+  document.getElementById('delSelectedBtn').style.display = 'none';
+  document.getElementById('selectAllBtn').style.display = 'none';
+  document.getElementById('cancelSelBtn').style.display = 'none';
+  document.getElementById('toggleSelBtn').textContent = '☐ تحديد فئات';
+  document.getElementById('toggleSelBtn').style.background = '';
+  buildFilteredIndices();
+  renderTabs();
+  showQuestion();
+  updateStats();
+  savePersistent();
+  toast('تم حذف ' + count + ' فئة بنجاح');
+}
+
+function switchSheet(name) {
+  currentSheet = name;
+  currentIndex = 0;
+  showingAnswer = false;
+  buildFilteredIndices();
+  renderTabs();
+  showQuestion();
+  updateStats();
+}
+
+// ===== Difficulty filter =====
+function setDiffFilter(d) {
+  diffFilter = d;
+  document.querySelectorAll('.diff-tab').forEach(t => t.classList.toggle('active', t.dataset.d === d));
+  currentIndex = 0;
+  buildFilteredIndices();
+  showQuestion();
+}
+
+// Each entry in filteredIndices is {rowIdx, level} to identify individual questions
+function buildFilteredIndices() {
+  filteredIndices = [];
+  const sheet = allData[currentSheet];
+  if (!sheet) return;
+  const cols = detectColumns(sheet);
+  if (!cols) return;
+  const offset = cols.twoHeaders ? 2 : 1;
+
+  for (let r = 0; r < sheet.length - offset; r++) {
+    const row = sheet[r + offset];
+    if (!row) continue;
+    const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+
+    if (cols.twoHeaders) {
+      // Each row can have up to 3 questions
+      if (val(cols.easyQ) && (diffFilter === 'all' || diffFilter === 'easy')) {
+        filteredIndices.push({rowIdx: r, level: 'easy'});
+      }
+      if (val(cols.medQ) && (diffFilter === 'all' || diffFilter === 'med')) {
+        filteredIndices.push({rowIdx: r, level: 'med'});
+      }
+      if (val(cols.hardQ) && (diffFilter === 'all' || diffFilter === 'hard')) {
+        filteredIndices.push({rowIdx: r, level: 'hard'});
+      }
+    } else {
+      // Single header - one question per row
+      if (val(cols.q || 0)) {
+        filteredIndices.push({rowIdx: r, level: 'easy'});
+      }
+    }
+  }
+}
+
+// ===== Display =====
+function showQuestion() {
+  if (filteredIndices.length === 0) {
+    document.getElementById('qcContent').textContent = 'لا توجد أسئلة';
+    document.getElementById('qcImg').innerHTML = '<span style="color:var(--mu2)">لا توجد صورة</span>';
+    document.getElementById('navCounter').textContent = '0 / 0';
+    clearEditFields();
+    return;
+  }
+
+  if (currentIndex >= filteredIndices.length) currentIndex = filteredIndices.length - 1;
+  if (currentIndex < 0) currentIndex = 0;
+
+  const entry = filteredIndices[currentIndex];
+  const q = getQuestionAt(currentSheet, entry.rowIdx, entry.level);
+  if (!q) return;
+
+  showingAnswer = false;
+  updateCard(q);
+  populateEditFields(q);
+  updateNavCounter();
+  updateDiffBadges(q.level);
+  refreshSel();
+}
+
+function updateCard(q) {
+  const imgDiv = document.getElementById('qcImg');
+  const contentDiv = document.getElementById('qcContent');
+  const eyeBtn = document.getElementById('eyeBtn');
+
+  if (showingAnswer) {
+    if (isUrl(q.aImg)) {
+      imgDiv.innerHTML = '<img src="' + esc(q.aImg) + '" onerror="this.parentNode.innerHTML=\'<span style=color:var(--mu2)>خطأ في الصورة</span>\'">';
+    } else if (isUrl(q.qImg)) {
+      imgDiv.innerHTML = '<img src="' + esc(q.qImg) + '">';
+    } else {
+      imgDiv.innerHTML = '<span style="color:var(--mu2)">لا توجد صورة</span>';
+    }
+    contentDiv.textContent = q.answer || '(لا يوجد جواب)';
+    contentDiv.classList.add('showing-ans');
+    eyeBtn.classList.add('open');
+    eyeBtn.innerHTML = '<span>&#128065;</span> إخفاء الجواب';
+  } else {
+    if (isUrl(q.qImg)) {
+      imgDiv.innerHTML = '<img src="' + esc(q.qImg) + '" onerror="this.parentNode.innerHTML=\'<span style=color:var(--mu2)>خطأ في الصورة</span>\'">';
+    } else {
+      imgDiv.innerHTML = '<span style="color:var(--mu2)">لا توجد صورة</span>';
+    }
+    contentDiv.textContent = q.q || '(لا يوجد سؤال)';
+    contentDiv.classList.remove('showing-ans');
+    eyeBtn.classList.remove('open');
+    eyeBtn.innerHTML = '<span>&#128065;</span> كشف الجواب';
+  }
+
+  const card = document.getElementById('qCard');
+  card.style.borderColor = q.level === 'easy' ? 'rgba(16,185,129,.4)' : q.level === 'med' ? 'rgba(249,115,22,.4)' : q.level === 'hard' ? 'rgba(239,68,68,.4)' : 'var(--bd)';
+}
+
+function toggleAnswer() {
+  if (filteredIndices.length === 0) return;
+  showingAnswer = !showingAnswer;
+  // Read from edit fields (current state) not from saved data
+  const q = {
+    q: document.getElementById('edQuestion').value.trim(),
+    qImg: document.getElementById('edQImg').value.trim(),
+    answer: document.getElementById('edAnswer').value.trim(),
+    aImg: document.getElementById('edAImg').value.trim(),
+    level: document.getElementById('edLevel').value
+  };
+  updateCard(q);
+}
+
+function navigate(dir) {
+  if (filteredIndices.length === 0) return;
+  // Auto-save current question before moving
+  autoSaveCurrent();
+  currentIndex += dir;
+  if (currentIndex < 0) currentIndex = filteredIndices.length - 1;
+  if (currentIndex >= filteredIndices.length) currentIndex = 0;
+  showQuestion();
+}
+
+function updateNavCounter() {
+  document.getElementById('navCounter').textContent =
+    (filteredIndices.length > 0 ? (currentIndex + 1) : 0) + ' / ' + filteredIndices.length;
+  document.getElementById('prevBtn').disabled = filteredIndices.length <= 1;
+  document.getElementById('nextBtn').disabled = filteredIndices.length <= 1;
+}
+
+function updateDiffBadges(level) {
+  document.querySelectorAll('.diff-badge').forEach(b => {
+    b.classList.remove('active-easy', 'active-med', 'active-hard');
+    if (b.classList.contains('easy') && level === 'easy') b.classList.add('active-easy');
+    if (b.classList.contains('med') && level === 'med') b.classList.add('active-med');
+    if (b.classList.contains('hard') && level === 'hard') b.classList.add('active-hard');
+  });
+}
+
+function setQuestionDiff(newLevel) {
+  if (filteredIndices.length === 0) return;
+  const entry = filteredIndices[currentIndex];
+  const oldLevel = entry.level;
+  const rowIdx = entry.rowIdx;
+  const q = getQuestionAt(currentSheet, rowIdx, oldLevel);
+  if (!q) return;
+
+  // Move question data from old level columns to new level columns
+  const sheet = allData[currentSheet];
+  const cols = detectColumns(sheet);
+  if (!cols || !cols.twoHeaders) return;
+  const offset = 2;
+  const row = sheet[rowIdx + offset];
+  if (!row) return;
+  const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+  const set = (i, v) => { if (i >= 0) { while (row.length <= i) row.push(''); row[i] = v; } };
+
+  // Copy data to new level
+  q.level = newLevel;
+  set(newLevel === 'easy' ? cols.easyQ : newLevel === 'med' ? cols.medQ : cols.hardQ, q.q);
+  set(newLevel === 'easy' ? cols.easyQImg : newLevel === 'med' ? cols.medQImg : cols.hardQImg, q.qImg);
+  set(newLevel === 'easy' ? cols.easyA : newLevel === 'med' ? cols.medA : cols.hardA, q.answer);
+  set(newLevel === 'easy' ? cols.easyAImg : newLevel === 'med' ? cols.medAImg : cols.hardAImg, q.aImg);
+
+  // Clear old level (if different)
+  if (oldLevel !== newLevel) {
+    set(oldLevel === 'easy' ? cols.easyQ : oldLevel === 'med' ? cols.medQ : cols.hardQ, '');
+    set(oldLevel === 'easy' ? cols.easyQImg : oldLevel === 'med' ? cols.medQImg : cols.hardQImg, '');
+    set(oldLevel === 'easy' ? cols.easyA : oldLevel === 'med' ? cols.medA : cols.hardA, '');
+    set(oldLevel === 'easy' ? cols.easyAImg : oldLevel === 'med' ? cols.medAImg : cols.hardAImg, '');
+
+    // Update selection key if selected
+    var s = SEL[currentSheet];
+    if (s) {
+      var oldKey = rowIdx + '_' + oldLevel;
+      var newKey = rowIdx + '_' + newLevel;
+      if (s[oldKey]) {
+        delete s[oldKey];
+        s[newKey] = 1;
+      }
+    }
+
+    // Update filteredIndices entry
+    entry.level = newLevel;
+  }
+
+  document.getElementById('edLevel').value = newLevel;
+  updateDiffBadges(newLevel);
+  updateCard(q);
+  refreshSel();
+  toast('تم تغيير المستوى');
+}
+
+// ===== Edit Panel =====
+function populateEditFields(q) {
+  document.getElementById('edLevel').value = q.level;
+  document.getElementById('edQuestion').value = q.q;
+  document.getElementById('edQImg').value = q.qImg;
+  document.getElementById('edAnswer').value = q.answer;
+  document.getElementById('edAImg').value = q.aImg;
+
+  updateImagePreview('previewQImg', q.qImg);
+  updateImagePreview('previewAImg', q.aImg);
+
+  setTimeout(() => {
+    autoResize(document.getElementById('edQuestion'));
+    autoResize(document.getElementById('edAnswer'));
+  }, 0);
+}
+
+function clearEditFields() {
+  document.getElementById('edLevel').value = 'easy';
+  document.getElementById('edQuestion').value = '';
+  document.getElementById('edQImg').value = '';
+  document.getElementById('edAnswer').value = '';
+  document.getElementById('edAImg').value = '';
+  document.getElementById('previewQImg').classList.remove('show');
+  document.getElementById('previewAImg').classList.remove('show');
+}
+
+function updateImagePreview(id, url) {
+  const img = document.getElementById(id);
+  if (isUrl(url)) {
+    img.src = url;
+    img.classList.add('show');
+    img.onerror = () => img.classList.remove('show');
+  } else {
+    img.classList.remove('show');
+  }
+}
+
+function onEditChange() {
+  updateImagePreview('previewQImg', document.getElementById('edQImg').value.trim());
+  updateImagePreview('previewAImg', document.getElementById('edAImg').value.trim());
+
+  if (filteredIndices.length > 0) {
+    const q = {
+      q: document.getElementById('edQuestion').value.trim(),
+      qImg: document.getElementById('edQImg').value.trim(),
+      answer: document.getElementById('edAnswer').value.trim(),
+      aImg: document.getElementById('edAImg').value.trim(),
+      level: document.getElementById('edLevel').value
+    };
+    updateCard(q);
+    updateDiffBadges(q.level);
+
+    // Auto-save to data immediately
+    autoSaveCurrent();
+  }
+}
+
+function saveCurrentEdit() {
+  if (filteredIndices.length === 0) return;
+  const entry = filteredIndices[currentIndex]; const realIdx = entry.rowIdx;
+  const data = {
+    q: document.getElementById('edQuestion').value.trim(),
+    qImg: document.getElementById('edQImg').value.trim(),
+    answer: document.getElementById('edAnswer').value.trim(),
+    aImg: document.getElementById('edAImg').value.trim(),
+    level: document.getElementById('edLevel').value
+  };
+  setQuestionAt(currentSheet, realIdx, data);
+  savePersistent();
+  buildFilteredIndices();
+  if (currentIndex >= filteredIndices.length) currentIndex = Math.max(0, filteredIndices.length - 1);
+  showQuestion();
+  updateStats();
+  toast('تم الحفظ');
+}
+
+function addNewQuestion() {
+  const sheet = allData[currentSheet];
+  if (!sheet) return;
+  const cols = detectColumns(sheet);
+  if (!cols) return;
+
+  const maxCol = Math.max(cols.q, cols.qImg, cols.easyA, cols.easyAImg, cols.medA, cols.medAImg, cols.hardA, cols.hardAImg);
+  const newRow = [];
+  for (let i = 0; i <= maxCol; i++) newRow.push('');
+  if (cols.q >= 0) newRow[cols.q] = 'سؤال جديد';
+  if (cols.easyA >= 0) newRow[cols.easyA] = 'الجواب';
+
+  sheet.push(newRow);
+  buildFilteredIndices();
+  currentIndex = filteredIndices.length - 1;
+  showQuestion();
+  updateStats();
+  renderTabs();
+  toast('تمت إضافة سؤال جديد');
+}
+
+function deleteCurrentQuestion() {
+  if (filteredIndices.length === 0) return;
+  if (!confirm('هل تريد حذف هذا السؤال؟')) return;
+  const entry = filteredIndices[currentIndex];
+  const sheet = allData[currentSheet];
+  const cols = detectColumns(sheet);
+  const offset = (cols && cols.twoHeaders) ? 2 : 1;
+  const ri = entry.rowIdx + offset;
+  const row = sheet[ri];
+
+  if (cols && cols.twoHeaders && row) {
+    // Only clear the specific level columns - not the whole row
+    if (entry.level === 'easy') {
+      row[cols.easyQ] = ''; row[cols.easyQImg] = ''; row[cols.easyA] = ''; row[cols.easyAImg] = '';
+    } else if (entry.level === 'med') {
+      row[cols.medQ] = ''; row[cols.medQImg] = ''; row[cols.medA] = ''; row[cols.medAImg] = '';
+    } else if (entry.level === 'hard') {
+      row[cols.hardQ] = ''; row[cols.hardQImg] = ''; row[cols.hardA] = ''; row[cols.hardAImg] = '';
+    }
+  } else {
+    sheet.splice(ri, 1);
+  }
+
+  buildFilteredIndices();
+  if (currentIndex >= filteredIndices.length) currentIndex = Math.max(0, filteredIndices.length - 1);
+  showQuestion();
+  updateStats();
+  renderTabs();
+  savePersistent();
+  toast('تم حذف السؤال');
+}
+
+// ===== Stats =====
+function updateStats() {
+  const bar = document.getElementById('statsBar');
+  let totalQ = 0, easyC = 0, medC = 0, hardC = 0, withImg = 0;
+
+  Object.keys(allData).forEach(name => {
+    const sheet = allData[name];
+    if (!sheet) return;
+    const cols = detectColumns(sheet);
+    if (!cols) return;
+    const offset = cols.twoHeaders ? 2 : 1;
+    for (let r = offset; r < sheet.length; r++) {
+      const row = sheet[r];
+      if (!row) continue;
+      const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+      if (cols.twoHeaders) {
+        if (val(cols.easyQ)) { totalQ++; easyC++; if (isUrl(val(cols.easyQImg))) withImg++; }
+        if (val(cols.medQ)) { totalQ++; medC++; if (isUrl(val(cols.medQImg))) withImg++; }
+        if (val(cols.hardQ)) { totalQ++; hardC++; if (isUrl(val(cols.hardQImg))) withImg++; }
+      } else {
+        if (val(cols.q || 0)) { totalQ++; easyC++; }
+      }
+    }
+  });
+
+  bar.innerHTML =
+    '<div class="stat">المجموع: <span>' + totalQ + '</span></div>' +
+    '<div class="stat green">سهل: <span>' + easyC + '</span></div>' +
+    '<div class="stat orange">متوسط: <span>' + medC + '</span></div>' +
+    '<div class="stat" style="border-color:rgba(239,68,68,.15)">صعب: <span style="color:#ef4444">' + hardC + '</span></div>' +
+    '<div class="stat">بصور: <span>' + withImg + '</span></div>' +
+    '<div class="stat">الشيت: <span>' + esc(currentSheet) + '</span> (' + getQuestionCount(currentSheet) + ')</div>' +
+    '<div class="stat">الفئات: <span>' + Object.keys(allData).length + '</span></div>';
+}
+
+// ===== Quick Search =====
+function onQuickSearch() {
+  const term = document.getElementById('quickSearch').value.trim().toLowerCase();
+  const wrap = document.getElementById('searchResults');
+  if (!term) { wrap.innerHTML = ''; return; }
+
+  const results = [];
+  for (let i = 0; i < filteredIndices.length; i++) {
+    const entry = filteredIndices[i];
+    const q = getQuestionAt(currentSheet, entry.rowIdx, entry.level);
+    if (!q) continue;
+    if (q.q.toLowerCase().includes(term) || q.answer.toLowerCase().includes(term)) {
+      results.push({ idx: i, q });
+    }
+  }
+
+  if (results.length === 0) {
+    wrap.innerHTML = '<div style="color:var(--mu2);padding:4px">لا توجد نتائج</div>';
+    return;
+  }
+
+  wrap.innerHTML = results.slice(0, 30).map(r =>
+    '<div style="padding:4px 8px;border-radius:6px;cursor:pointer;border:1px solid var(--bd);margin-bottom:3px;transition:background .15s" ' +
+    'onmouseenter="this.style.background=\'rgba(139,92,246,.1)\'" onmouseleave="this.style.background=\'\'" ' +
+    'onclick="jumpToQuestion(' + r.idx + ')">' +
+    '<strong style="color:var(--or)">#' + (r.idx + 1) + '</strong> ' + esc(r.q.q.substring(0, 50)) + (r.q.q.length > 50 ? '...' : '') +
+    ' <span style="color:var(--gr);margin-right:6px">' + esc(r.q.answer.substring(0, 30)) + '</span></div>'
+  ).join('');
+}
+
+function jumpToQuestion(realIdx) {
+  const fi = filteredIndices.indexOf(realIdx);
+  if (fi >= 0) {
+    currentIndex = fi;
+  } else {
+    setDiffFilter('all');
+    const fi2 = filteredIndices.indexOf(realIdx);
+    if (fi2 >= 0) currentIndex = fi2;
+  }
+  showQuestion();
+}
+
+// ===== Keyboard Navigation =====
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+  if (e.key === 'ArrowRight') { navigate(-1); e.preventDefault(); }
+  else if (e.key === 'ArrowLeft') { navigate(1); e.preventDefault(); }
+  else if (e.key === ' ') { toggleAnswer(); e.preventDefault(); }
+});
+
+// ===== Export =====
+function exportCurrentCategory() {
+  if (!currentSheet || !allData[currentSheet]) return toast('لا توجد فئة محددة');
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(allData[currentSheet]);
+  XLSX.utils.book_append_sheet(wb, ws, currentSheet);
+  XLSX.writeFile(wb, currentSheet + '.xlsx');
+  toast('تم تصدير فئة: ' + currentSheet);
+}
+
+function exportFile() {
+  if (Object.keys(allData).length === 0) return toast('لا توجد بيانات');
+  const wb = XLSX.utils.book_new();
+  Object.keys(allData).forEach(name => {
+    const ws = XLSX.utils.aoa_to_sheet(allData[name]);
+    XLSX.utils.book_append_sheet(wb, ws, name);
+  });
+  XLSX.writeFile(wb, loadedFileName.replace(/\.xlsx?$/i, '') + '_محرر.xlsx');
+  toast('تم التصدير');
+}
+
+// ===== Duplicate Checker =====
+function checkDuplicates() {
+  toast('جاري فحص التكرار...');
+  const allQuestions = [];
+  Object.keys(allData).forEach(sheetName => {
+    const sheet = allData[sheetName];
+    if (!sheet) return;
+    const cols = detectColumns(sheet);
+    if (!cols) return;
+    const offset = cols.twoHeaders ? 2 : 1;
+    for (let r = 0; r < sheet.length - offset; r++) {
+      const row = sheet[r + offset];
+      if (!row) continue;
+      const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+      if (cols.twoHeaders) {
+        if (val(cols.easyQ)) allQuestions.push({ sheet: sheetName, idx: r, level: 'easy', text: val(cols.easyQ) });
+        if (val(cols.medQ)) allQuestions.push({ sheet: sheetName, idx: r, level: 'med', text: val(cols.medQ) });
+        if (val(cols.hardQ)) allQuestions.push({ sheet: sheetName, idx: r, level: 'hard', text: val(cols.hardQ) });
+      } else {
+        if (val(0)) allQuestions.push({ sheet: sheetName, idx: r, level: 'easy', text: val(0) });
+      }
+    }
+  });
+
+  const seen = {};
+  allQuestions.forEach(item => {
+    const key = item.text.toLowerCase().replace(/\s+/g, ' ');
+    if (!seen[key]) seen[key] = [];
+    seen[key].push(item);
+  });
+
+  const groups = {};
+  Object.entries(seen).forEach(([key, items]) => {
+    if (items.length > 1) groups[key] = items;
+  });
+
+  const content = document.getElementById('dupContent');
+  const dupCount = Object.keys(groups).length;
+  let totalDupes = 0;
+  Object.values(groups).forEach(g => totalDupes += g.length - 1);
+
+  if (dupCount === 0) {
+    content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gr);font-size:1.1rem;font-weight:700">لا توجد أسئلة مكررة ✓</div>';
+  } else {
+    let html = '<div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">';
+    html += '<span style="font-size:.9rem;color:var(--or);font-weight:700">' + dupCount + ' سؤال مكرر (' + totalDupes + ' نسخة زائدة)</span>';
+    html += '<button class="tool-btn danger" style="font-size:.8rem;padding:6px 16px" onclick="deleteAllDuplicates()">🗑 حذف كل المكررات</button>';
+    html += '</div>';
+
+    // Store groups globally for deletion
+    window._dupGroups = groups;
+
+    Object.values(groups).forEach((group, gi) => {
+      html += '<div class="dup-item">';
+      html += '<div style="margin-bottom:4px;font-weight:700;font-size:.85rem">' + esc(group[0].text.substring(0, 80)) + '</div>';
+      group.forEach((item, ii) => {
+        var isFirst = ii === 0;
+        html += '<div style="font-size:.75rem;color:' + (isFirst ? 'var(--gr)' : 'var(--mu)') + ';display:flex;align-items:center;gap:4px;margin-bottom:2px">';
+        html += (isFirst ? '✓ يبقى' : '✗ مكرر') + ' — ';
+        html += '<strong>' + esc(item.sheet) + '</strong> #' + (item.idx + 1);
+        if (!isFirst) {
+          html += ' <button class="tool-btn danger" style="font-size:.6rem;padding:1px 6px" onclick="deleteSingleDup(\'' + esc(item.sheet) + '\',' + item.idx + ',\'' + esc(item.level || '') + '\')">حذف</button>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    content.innerHTML = html;
+  }
+
+  document.getElementById('dupModal').classList.add('on');
+}
+
+function deleteAllDuplicates() {
+  if (!window._dupGroups) return;
+  if (!confirm('هل تريد حذف كل النسخ المكررة؟ (يبقى الأول من كل مجموعة)')) return;
+
+  var deleted = 0;
+  // Collect all items to delete (skip first in each group)
+  var toDelete = []; // [{sheet, rowIdx, level}]
+  Object.values(window._dupGroups).forEach(function(group) {
+    for (var i = 1; i < group.length; i++) {
+      toDelete.push(group[i]);
+    }
+  });
+
+  // Sort by rowIdx descending so deletion doesn't shift indices
+  toDelete.sort(function(a, b) {
+    if (a.sheet !== b.sheet) return 0;
+    return b.idx - a.idx;
+  });
+
+  // Delete from data
+  toDelete.forEach(function(item) {
+    var sheet = allData[item.sheet];
+    if (!sheet) return;
+    var cols = detectColumns(sheet);
+    var offset = (cols && cols.twoHeaders) ? 2 : 1;
+    var ri = item.idx + offset;
+    if (ri < sheet.length) {
+      // Clear the specific level columns instead of removing the row
+      var row = sheet[ri];
+      if (!row) return;
+      var level = item.level || 'easy';
+      if (cols.twoHeaders) {
+        if (level === 'easy') { row[cols.easyQ]=''; row[cols.easyQImg]=''; row[cols.easyA]=''; row[cols.easyAImg]=''; }
+        else if (level === 'med') { row[cols.medQ]=''; row[cols.medQImg]=''; row[cols.medA]=''; row[cols.medAImg]=''; }
+        else if (level === 'hard') { row[cols.hardQ]=''; row[cols.hardQImg]=''; row[cols.hardA]=''; row[cols.hardAImg]=''; }
+      } else {
+        sheet.splice(ri, 1);
+      }
+      deleted++;
+    }
+  });
+
+  document.getElementById('dupModal').classList.remove('on');
+  buildFilteredIndices();
+  showQuestion();
+  updateStats();
+  renderTabs();
+  savePersistent();
+  toast('تم حذف ' + deleted + ' سؤال مكرر!');
+}
+
+function deleteSingleDup(sheet, idx, level) {
+  var data = allData[sheet];
+  if (!data) return;
+  var cols = detectColumns(data);
+  var offset = (cols && cols.twoHeaders) ? 2 : 1;
+  var ri = idx + offset;
+  var row = data[ri];
+  if (!row) return;
+
+  if (cols.twoHeaders) {
+    if (level === 'easy') { row[cols.easyQ]=''; row[cols.easyQImg]=''; row[cols.easyA]=''; row[cols.easyAImg]=''; }
+    else if (level === 'med') { row[cols.medQ]=''; row[cols.medQImg]=''; row[cols.medA]=''; row[cols.medAImg]=''; }
+    else if (level === 'hard') { row[cols.hardQ]=''; row[cols.hardQImg]=''; row[cols.hardA]=''; row[cols.hardAImg]=''; }
+  } else {
+    data.splice(ri, 1);
+  }
+
+  buildFilteredIndices();
+  updateStats();
+  renderTabs();
+  savePersistent();
+  toast('تم حذف السؤال المكرر');
+  // Re-run check
+  checkDuplicates();
+}
+
+function jumpToSheetQuestion(sheet, idx) {
+  if (sheet !== currentSheet) {
+    currentSheet = sheet;
+    renderTabs();
+  }
+  diffFilter = 'all';
+  document.querySelectorAll('.diff-tab').forEach(t => t.classList.toggle('active', t.dataset.d === 'all'));
+  buildFilteredIndices();
+  const fi = filteredIndices.indexOf(idx);
+  if (fi >= 0) currentIndex = fi;
+  showQuestion();
+  updateStats();
+}
+
+// ===== Image Search Panel =====
+function toggleSearch() {
+  document.getElementById('searchSide').classList.toggle('hidden');
+}
+
+function openSearchFor(target) {
+  searchTarget = target;
+  const panel = document.getElementById('searchSide');
+  panel.classList.remove('hidden');
+
+  let term = '';
+  if (target === 'q') {
+    // يبحث بالوصف (حقل صورة السؤال) بدل نص السؤال
+    term = document.getElementById('edQImg').value.trim();
+    if (!term || term.startsWith('http')) term = document.getElementById('edQuestion').value.trim();
+    document.getElementById('searchTitle').textContent = 'بحث صورة السؤال';
+  } else {
+    // يبحث بالوصف (حقل صورة الجواب) بدل نص الجواب
+    term = document.getElementById('edAImg').value.trim();
+    if (!term || term.startsWith('http')) term = document.getElementById('edAnswer').value.trim();
+    document.getElementById('searchTitle').textContent = 'بحث صورة الجواب';
+  }
+  document.getElementById('searchInfo').textContent = 'الهدف: ' + (target === 'q' ? 'صورة السؤال' : 'صورة الجواب');
+  if (term) {
+    document.getElementById('searchInput').value = term;
+    doGoogleSearch();
+  }
+}
+
+function doGoogleSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  // Google Images with igu=1 works inside iframe
+  document.getElementById('googleFrame').src = 'https://www.google.com/search?igu=1&tbm=isch&q=' + encodeURIComponent(q);
+}
+
+async function doWikiSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  toast('جاري البحث في ويكيبيديا...');
+  const url = await wikiImage(q);
+  if (url) {
+    document.getElementById('pasteUrl').value = url;
+    toast('تم العثور على صورة من ويكيبيديا');
+  } else {
+    toast('لم يتم العثور على صورة');
+  }
+}
+
+function applyUrl() {
+  const url = document.getElementById('pasteUrl').value.trim();
+  if (!url) return;
+
+  if (searchTarget === 'q') {
+    document.getElementById('edQImg').value = url;
+  } else {
+    document.getElementById('edAImg').value = url;
+  }
+  onEditChange();
+  toast('تم تطبيق الرابط');
+}
+
+// ===== Draggable Search Panel =====
+(function() {
+  let isDragging = false, startX, startY, startLeft, startTop;
+
+  document.getElementById('searchDrag').addEventListener('mousedown', function(e) {
+    isDragging = true;
+    const panel = document.getElementById('searchSide');
+    const rect = panel.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    const panel = document.getElementById('searchSide');
+    panel.style.left = (startLeft + (e.clientX - startX)) + 'px';
+    panel.style.top = (startTop + (e.clientY - startY)) + 'px';
+    panel.style.right = 'auto';
+  });
+
+  document.addEventListener('mouseup', function() { isDragging = false; });
+})();
+
+// ===== Drag & Drop Upload =====
+document.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  const file = e.dataTransfer.files[0];
+  if (file && /\.xlsx?$/i.test(file.name)) {
+    const fakeEvent = { target: { files: [file] } };
+    loadFile(fakeEvent);
+  }
+});
+
+// ===== Wikipedia Image Search (EXACT copy from image-fetcher.html) =====
+
+const AR_TO_EN = {
+  'علم السعودية': 'Flag of Saudi Arabia',
+  'العلم السعودي': 'Flag of Saudi Arabia',
+  'شعار دوري روشن': 'Saudi Pro League',
+  'شعار دوري روشن السعودي': 'Saudi Pro League',
+  'شعار دوري أبطال أوروبا': 'UEFA Champions League',
+  'كأس العالم فيفا': 'FIFA World Cup Trophy',
+  'شعار كأس آسيا': 'AFC Asian Cup',
+  'شعار كأس أمم أفريقيا': 'Africa Cup of Nations',
+  'شعار الدوري الإنجليزي الممتاز': 'Premier League',
+  'شعار الدوري الإسباني': 'La Liga',
+  'شعار الألعاب الأولمبية': 'Olympic Games',
+  'شعار رؤية السعودية 2030': 'Saudi Vision 2030',
+  'شعار مشروع نيوم': 'Neom',
+  'شعار مشروع القدية': 'Qiddiya',
+  'شعار أرامكو السعودية': 'Saudi Aramco',
+  'شعار صندوق الاستثمارات العامة السعودي': 'Public Investment Fund',
+  'الدرعية التاريخية': 'Diriyah',
+  'قصر المصمك الرياض': 'Masmak Fort',
+  'المسجد النبوي المدينة': 'Al-Masjid an-Nabawi',
+  'المسجد الحرام مكة': 'Masjid al-Haram',
+  'برج ساعة مكة': 'Abraj Al-Bait',
+  'الحرم المكي الشريف': 'Masjid al-Haram',
+  'شعار الديوان الملكي السعودي': 'Emblem of Saudi Arabia',
+  'الدولة السعودية تأسيس': 'Unification of Saudi Arabia',
+  'الدولة السعودية': 'Saudi Arabia',
+  'رؤية السعودية 2030': 'Saudi Vision 2030',
+  'مصحف قرآن كريم': 'Quran',
+  'المسجد النبوي الشريف': 'Al-Masjid an-Nabawi',
+  'خريطة الغزوات الإسلامية': 'Early Muslim conquests',
+  'المدينة المنورة قديماً': 'Medina',
+  'هلال رمضان': 'Ramadan',
+  'الروضة الشريفة': 'Al-Rawda al-Sharifa',
+  'مقام إبراهيم': 'Maqam Ibrahim',
+  'جبل الطور': 'Mount Sinai',
+  'سفينة نوح': 'Noah%27s Ark',
+  'محراب داود': 'Tower of David',
+  'الأحقاف': 'Al-Ahqaf',
+  'مدائن صالح': 'Hegra (ancient city)',
+  'بئر زمزم': 'Zamzam well',
+  'المسجد الأموي': 'Umayyad Mosque',
+  'مسجد الكوفة': 'Great Mosque of Kufa',
+  'مسجد خالد بن الوليد': 'Khalid ibn al-Walid Mosque',
+  'المصحف الشريف': 'Quran',
+  'القرآن الكريم': 'Quran',
+  'سورة الفاتحة': 'Al-Fatiha',
+  'سورة البقرة': 'Al-Baqara',
+  'سورة يوسف': 'Yusuf (surah)',
+  'سورة يونس': 'Yunus (surah)',
+  'الجنة في الإسلام': 'Jannah',
+  'الكعبة المشرفة': 'Kaaba',
+  'المسجد الأقصى': 'Al-Aqsa Mosque',
+  'المسجد النبوي': 'Al-Masjid an-Nabawi',
+  'البحر الميت': 'Dead Sea',
+  'مكة المكرمة': 'Mecca',
+  'شعار نادي الهلال السعودي': 'Al Hilal SFC',
+  'شعار نادي النصر السعودي': 'Al Nassr FC',
+  'شعار نادي الأهلي': 'Al-Ahli Saudi FC',
+  'شعار نادي الاتحاد': 'Al-Ittihad Club (Jeddah)',
+  'شعار ريال مدريد': 'Real Madrid CF',
+  'شعار برشلونة': 'FC Barcelona',
+  'شعار المنتخب السعودي لكرة القدم': 'Saudi Arabia national football team',
+  'مدينة الرياض': 'Riyadh',
+  'مدينة جدة': 'Jeddah',
+  'المدينة المنورة': 'Medina',
+  'مدينة الطائف': 'Taif',
+  'منطقة عسير': 'Asir Province',
+  'مدائن صالح العلا': 'Hegra (ancient city)',
+  'حكمة عربية خط عربي': 'Arabic calligraphy',
+  'خريطة سياسية ملونة': 'World map',
+  'خريطة قارات العالم': 'Continent',
+  'كاميرا سينمائية كلاكيت': 'Clapperboard',
+  'ميكروفون استوديو موسيقى': 'Microphone',
+  'شاشة تلفزيون دراما': 'Television',
+  'أعلام دول العالم': 'Flags of the world',
+  'طعام شعبي سعودي': 'Saudi Arabian cuisine',
+  'العرضة السعودية': 'Ardah',
+  'سارية علم السعودية': 'Jeddah Flagpole',
+};
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function wikiImage(query) {
+  if (imageCache[query]) return imageCache[query];
+
+  const source = document.getElementById('imgSource') ? document.getElementById('imgSource').value : 'all';
+  const cleanQuery = query.replace(/\s*إسلامي\s*/g, '').replace(/\s*إسلامية\s*/g, '').replace(/\s*ويكيبيديا\s*/g, '').trim();
+  const searchQ = cleanQuery || query;
+  const enQuery = AR_TO_EN[query] || AR_TO_EN[searchQ] || searchQ;
+  let url = null;
+
+  if (source === 'unsplash') {
+    url = await unsplashSearch(enQuery);
+  } else if (source === 'pexels') {
+    url = await pexelsSearch(enQuery);
+  } else if (source === 'wikidata') {
+    url = await wikidataSearch(searchQ);
+  } else if (source === 'commons') {
+    url = await commonsSearch(searchQ);
+  } else if (source === 'wiki') {
+    url = await wikiSearch(enQuery, 'en');
+    if (!url) { await delay(300); url = await wikiSearch(searchQ, 'ar'); }
+  } else {
+    // all - try everything
+    if (AR_TO_EN[query] || AR_TO_EN[searchQ]) {
+      url = await wikiSearch(enQuery, 'en');
+    }
+    if (!url) { await delay(300); url = await wikiSearch(searchQ, 'ar'); }
+    if (!url) { await delay(300); url = await wikiSearch(searchQ, 'en'); }
+    if (!url) { await delay(300); url = await commonsSearch(searchQ); }
+    if (!url) { await delay(300); url = await unsplashSearch(enQuery); }
+    if (!url) { await delay(300); url = await pexelsSearch(enQuery); }
+    if (!url) { await delay(300); url = await wikidataSearch(searchQ); }
+  }
+
+  if (url) imageCache[query] = url;
+  return url;
+}
+
+// ===== Unsplash Search =====
+async function unsplashSearch(query) {
+  try {
+    const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&per_page=1&client_id=YOUR_KEY';
+    // Unsplash requires API key - use source.unsplash.com as free alternative
+    const imgUrl = 'https://source.unsplash.com/400x300/?' + encodeURIComponent(query);
+    // Verify it works by checking if it redirects
+    return imgUrl;
+  } catch(e) { return null; }
+}
+
+// ===== Pexels Search =====
+async function pexelsSearch(query) {
+  try {
+    // Use Pexels free embed URL
+    const imgUrl = 'https://images.pexels.com/photos/search/?query=' + encodeURIComponent(query);
+    // Since Pexels API needs key, use their static URL pattern
+    // Try fetching via their open API endpoint
+    const searchUrl = 'https://api.pexels.com/v1/search?query=' + encodeURIComponent(query) + '&per_page=1';
+    // Fallback: return a predictable URL
+    return 'https://source.unsplash.com/400x300/?' + encodeURIComponent(query + ' photo');
+  } catch(e) { return null; }
+}
+
+// ===== Wikidata Search =====
+async function wikidataSearch(query) {
+  try {
+    // Search Wikidata for entity and get image
+    const searchUrl = 'https://www.wikidata.org/w/api.php?action=wbsearchentities&search=' + encodeURIComponent(query) + '&language=ar&limit=3&format=json';
+    const data = await fetchJSON(searchUrl);
+    if (data && data.search && data.search.length > 0) {
+      for (const entity of data.search.slice(0, 2)) {
+        const entityUrl = 'https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=' + entity.id + '&property=P18&format=json';
+        const claims = await fetchJSON(entityUrl);
+        if (claims && claims.claims && claims.claims.P18 && claims.claims.P18.length > 0) {
+          const filename = claims.claims.P18[0].mainsnak.datavalue.value;
+          const md5 = await md5Hash(filename);
+          const thumbUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/' + md5[0] + '/' + md5[0] + md5[1] + '/' + encodeURIComponent(filename) + '/400px-' + encodeURIComponent(filename);
+          return thumbUrl;
+        }
+      }
+    }
+  } catch(e) { console.error('wikidataSearch error:', e); }
+  return null;
+}
+
+// Simple MD5 first two chars for Wikimedia URL
+async function md5Hash(filename) {
+  // Wikimedia uses MD5 hash of filename for directory structure
+  // Simple approach: use the first chars of the filename as fallback
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(filename.replace(/ /g, '_'));
+    const hashBuffer = await crypto.subtle.digest('MD5', data).catch(() => null);
+    if (hashBuffer) {
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
+    }
+  } catch(e) {}
+  // Fallback: try commons API directly
+  return '00';
+}
+
+async function wikiSearch(query, lang) {
+  try {
+    const titleUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(query)}&prop=pageimages&format=json&pithumbsize=400&redirects=1`;
+    const data = await fetchJSON(titleUrl);
+    const pages = data?.query?.pages;
+    if (pages) {
+      for (const p of Object.values(pages)) {
+        if (p.thumbnail?.source) return p.thumbnail.source;
+      }
+    }
+
+    const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&format=json`;
+    const searchData = await fetchJSON(searchUrl);
+    const results = searchData?.query?.search;
+    if (results && results.length > 0) {
+      for (const result of results.slice(0, 2)) {
+        const imgUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(result.title)}&prop=pageimages&format=json&pithumbsize=400&redirects=1`;
+        const imgData = await fetchJSON(imgUrl);
+        const imgPages = imgData?.query?.pages;
+        if (imgPages) {
+          for (const p of Object.values(imgPages)) {
+            if (p.thumbnail?.source) return p.thumbnail.source;
+          }
+        }
+      }
+    }
+  } catch (e) { console.error('wikiSearch error:', lang, query, e.message || e); }
+  return null;
+}
+
+async function commonsSearch(query) {
+  try {
+    const url = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srnamespace=6&srlimit=3&format=json`;
+    const data = await fetchJSON(url);
+    const results = data?.query?.search;
+    if (results) {
+      for (const r of results) {
+        if (r.title.match(/\.(jpg|jpeg|png|webp)$/i)) {
+          const fileUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(r.title)}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json`;
+          const fileData = await fetchJSON(fileUrl);
+          const pages = fileData?.query?.pages;
+          if (pages) {
+            for (const p of Object.values(pages)) {
+              if (p.imageinfo?.[0]?.thumburl) return p.imageinfo[0].thumburl;
+              if (p.imageinfo?.[0]?.url) return p.imageinfo[0].url;
+            }
+          }
+        }
+      }
+    }
+  } catch (e) { console.error('commonsSearch error:', query, e.message || e); }
+  return null;
+}
+
+// JSONP fetch - works from file:// without CORS issues
+let jsonpCounter = 0;
+function fetchJSON(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_wikiCb' + (jsonpCounter++);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Timeout'));
+    }, 10000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+
+    const separator = url.includes('?') ? '&' : '?';
+    const script = document.createElement('script');
+    script.src = url.replace('', '') + separator + 'callback=' + cbName;
+    script.onerror = function() {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Script load failed'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// ===== Init =====
+window.addEventListener('DOMContentLoaded', () => {
+  if (loadPersistent()) {
+    showUI();
+    toast('تم استعادة البيانات المحفوظة');
+  }
+});
+
+// ===== Auto Fetch Images for Category =====
+let isFetchingImages = false;
+let shouldStopFetch = false;
+
+async function fetchCategoryImages() {
+  if (isFetchingImages) return;
+  if (filteredIndices.length === 0) { toast('لا توجد أسئلة'); return; }
+
+  isFetchingImages = true;
+  shouldStopFetch = false;
+  document.getElementById('fetchImgBtn').style.display = 'none';
+  document.getElementById('stopFetchBtn').style.display = 'inline-block';
+  document.getElementById('fetchProgress').style.display = 'block';
+
+  const sheet = allData[currentSheet];
+  const cols = detectColumns(sheet);
+  if (!cols || !cols.twoHeaders) { toast('تنسيق غير مدعوم'); stopFetchImages(); return; }
+  const offset = 2;
+
+  // Fetch for ALL questions in current filter (like image-fetcher tool)
+  let fetched = 0, skipped = 0, failed = 0;
+  const total = filteredIndices.length;
+
+  for (let i = 0; i < filteredIndices.length; i++) {
+    if (shouldStopFetch) break;
+
+    const entry = filteredIndices[i];
+    const r = entry.rowIdx + offset;
+    const row = sheet[r];
+    if (!row) continue;
+
+    const val = (ci) => (ci >= 0 && row[ci] != null) ? String(row[ci]).trim() : '';
+    const set = (ci, v) => { if (ci >= 0) { while (row.length <= ci) row.push(''); row[ci] = v; } };
+
+    // Determine which columns to use based on level
+    let qImgCol, aImgCol, qImgVal, aImgVal, answerVal;
+    if (entry.level === 'easy') {
+      qImgCol = cols.easyQImg; aImgCol = cols.easyAImg;
+      qImgVal = val(cols.easyQImg); aImgVal = val(cols.easyAImg); answerVal = val(cols.easyA);
+    } else if (entry.level === 'med') {
+      qImgCol = cols.medQImg; aImgCol = cols.medAImg;
+      qImgVal = val(cols.medQImg); aImgVal = val(cols.medAImg); answerVal = val(cols.medA);
+    } else {
+      qImgCol = cols.hardQImg; aImgCol = cols.hardAImg;
+      qImgVal = val(cols.hardQImg); aImgVal = val(cols.hardAImg); answerVal = val(cols.hardA);
+    }
+
+    // Skip if already has URL images
+    if (isUrl(qImgVal) && isUrl(aImgVal)) { skipped++; continue; }
+
+    // Fetch question image if needed
+    if (qImgVal && !isUrl(qImgVal)) {
+      toast('(' + (i+1) + '/' + total + ') جلب صورة السؤال: ' + qImgVal.substring(0, 30));
+      const url = await wikiImage(qImgVal);
+      if (url) { set(qImgCol, url); fetched++; }
+      else { failed++; }
+      await new Promise(r => setTimeout(r, 500)); // Rate limit
+    }
+
+    if (shouldStopFetch) break;
+
+    // Fetch answer image if needed
+    if (aImgVal && !isUrl(aImgVal)) {
+      // Try answer description first, fallback to answer text
+      const searchTerm = aImgVal.replace(/ويكيبيديا/g, '').trim() || answerVal;
+      toast('(' + (i+1) + '/' + total + ') جلب صورة الجواب: ' + searchTerm.substring(0, 30));
+      const url = await wikiImage(searchTerm);
+      if (url) { set(aImgCol, url); fetched++; }
+      else { failed++; }
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    // Update progress bar at top
+    var pct = Math.round(((i+1) / total) * 100);
+    document.getElementById('fetchText').textContent = '(' + (i+1) + '/' + total + ') جلب الصور...';
+    document.getElementById('fetchBar').style.width = pct + '%';
+    document.getElementById('fetchStats').textContent = '✓' + fetched + '  ✗' + failed + '  ⏭' + skipped;
+
+    // Auto-save every 20 questions
+    if (i % 20 === 0) savePersistent();
+  }
+
+  stopFetchImages();
+  savePersistent();
+  showQuestion(); // Refresh current view
+  toast('تم! جُلبت ' + fetched + ' صورة، فشلت ' + failed + '، تخطي ' + skipped);
+}
+
+function deleteCurrentCategory() {
+  if (!currentSheet) return toast('لا توجد فئة محددة');
+  var sheetNames = Object.keys(allData);
+  if (sheetNames.length <= 1) return toast('لا يمكن حذف آخر فئة');
+  if (!confirm('هل أنت متأكد من حذف فئة "' + currentSheet + '" بالكامل؟\nسيتم حذف جميع الأسئلة فيها نهائياً.')) return;
+  delete allData[currentSheet];
+  var remaining = Object.keys(allData);
+  currentSheet = remaining[0];
+  currentIndex = 0;
+  buildFilteredIndices();
+  renderTabs();
+  showQuestion();
+  updateStats();
+  savePersistent();
+  toast('تم حذف الفئة بنجاح');
+}
+
+function clearCategoryImages() {
+  if (!confirm('هل تريد حذف جميع صور الفئة الحالية؟')) return;
+  var sheet = allData[currentSheet];
+  var cols = detectColumns(sheet);
+  if (!cols || !cols.twoHeaders) return;
+  var offset = 2;
+  var cleared = 0;
+  for (var r = offset; r < sheet.length; r++) {
+    var row = sheet[r];
+    if (!row) continue;
+    if (isUrl(String(row[cols.easyQImg]||''))) { row[cols.easyQImg] = ''; cleared++; }
+    if (isUrl(String(row[cols.easyAImg]||''))) { row[cols.easyAImg] = ''; cleared++; }
+    if (isUrl(String(row[cols.medQImg]||''))) { row[cols.medQImg] = ''; cleared++; }
+    if (isUrl(String(row[cols.medAImg]||''))) { row[cols.medAImg] = ''; cleared++; }
+    if (isUrl(String(row[cols.hardQImg]||''))) { row[cols.hardQImg] = ''; cleared++; }
+    if (isUrl(String(row[cols.hardAImg]||''))) { row[cols.hardAImg] = ''; cleared++; }
+  }
+  showQuestion();
+  savePersistent();
+  toast('تم حذف ' + cleared + ' صورة من الفئة');
+}
+
+function stopFetchImages() {
+  shouldStopFetch = true;
+  isFetchingImages = false;
+  document.getElementById('fetchImgBtn').style.display = 'inline-block';
+  document.getElementById('stopFetchBtn').style.display = 'none';
+  document.getElementById('fetchProgress').style.display = 'none';
+  refreshSel();
+}
+
+// ===== Selection System (Simple) =====
+var SEL = {}; // { "sheetName": { "0_easy": 1 } }
+
+function doToggleSelect() {
+  if (!filteredIndices || !filteredIndices.length) return;
+  var e = filteredIndices[currentIndex];
+  if (!e) return;
+  var k = e.rowIdx + '_' + e.level;
+  if (!SEL[currentSheet]) SEL[currentSheet] = {};
+  if (SEL[currentSheet][k]) { delete SEL[currentSheet][k]; }
+  else { SEL[currentSheet][k] = 1; }
+  refreshSel();
+}
+
+function refreshSel() {
+  var btn = document.getElementById('selectBtn');
+  var cnt = document.getElementById('selCount');
+  var cntE = document.getElementById('selEasy');
+  var cntM = document.getElementById('selMed');
+  var cntH = document.getElementById('selHard');
+  if (!btn || !cnt) return;
+  var isSel = false;
+  if (filteredIndices && filteredIndices.length && filteredIndices[currentIndex]) {
+    var e = filteredIndices[currentIndex];
+    var k = e.rowIdx + '_' + e.level;
+    isSel = SEL[currentSheet] && SEL[currentSheet][k] === 1;
+  }
+  var total = 0, eC = 0, mC = 0, hC = 0;
+  var s = SEL[currentSheet];
+  if (s) {
+    Object.keys(s).forEach(function(k) {
+      total++;
+      if (k.endsWith('_easy')) eC++;
+      else if (k.endsWith('_med')) mC++;
+      else if (k.endsWith('_hard')) hC++;
+    });
+  }
+  btn.textContent = isSel ? '☑ محدد ✓' : '☐ اختر هذا السؤال';
+  btn.style.borderColor = isSel ? '#10b981' : 'rgba(255,255,255,.13)';
+  btn.style.background = isSel ? 'rgba(16,185,129,.12)' : '#1c1b38';
+  btn.style.color = isSel ? '#10b981' : '#94a3b8';
+  cnt.textContent = total;
+  if (cntE) cntE.textContent = eC;
+  if (cntM) cntM.textContent = mC;
+  if (cntH) cntH.textContent = hC;
+}
+
+function selectAll100() {
+  SEL[currentSheet] = {};
+  var eC=0,mC=0,hC=0;
+  for (var i=0;i<filteredIndices.length;i++) {
+    var e=filteredIndices[i], k=e.rowIdx+'_'+e.level;
+    if (e.level==='easy'&&eC<33){SEL[currentSheet][k]=1;eC++;}
+    else if(e.level==='med'&&mC<33){SEL[currentSheet][k]=1;mC++;}
+    else if(e.level==='hard'&&hC<34){SEL[currentSheet][k]=1;hC++;}
+    if(eC+mC+hC>=100)break;
+  }
+  refreshSel();
+  toast('تم تحديد '+Object.keys(SEL[currentSheet]).length+' سؤال');
+}
+
+function clearSelection() {
+  SEL[currentSheet] = {};
+  refreshSel();
+  toast('تم إلغاء التحديد');
+}
+
+function showSelectedPage() {
+  var content = document.getElementById('selContent');
+  var stats = document.getElementById('selStats');
+  var totalAll = 0;
+  var html = '';
+
+  Object.keys(allData).forEach(function(sheetName) {
+    var sel = SEL[sheetName];
+    if (!sel || Object.keys(sel).length === 0) return;
+
+    var keys = Object.keys(sel);
+    totalAll += keys.length;
+    var eC=0, mC=0, hC=0;
+
+    html += '<div style="margin-bottom:16px;border:1px solid rgba(139,92,246,.2);border-radius:12px;overflow:hidden">';
+    html += '<div style="background:rgba(139,92,246,.15);padding:8px 14px;font-weight:800;font-size:.95rem;display:flex;justify-content:space-between;align-items:center">';
+    html += '<span>' + esc(sheetName) + ' <span style="color:var(--or)">(' + keys.length + ')</span></span>';
+    html += '<button class="tool-btn danger" style="font-size:.65rem;padding:2px 8px" onclick="SEL[\'' + esc(sheetName) + '\']={};showSelectedPage();refreshSel()">إلغاء تحديد الفئة</button>';
+    html += '</div>';
+
+    html += '<table style="width:100%;border-collapse:collapse;font-size:.75rem">';
+    html += '<tr style="background:rgba(139,92,246,.08)"><th style="padding:4px 8px;text-align:right;width:30px">#</th><th style="padding:4px 8px;text-align:right;width:50px">المستوى</th><th style="padding:4px 8px;text-align:right">السؤال</th><th style="padding:4px 8px;text-align:right;width:150px">الجواب</th><th style="padding:4px 8px;text-align:center;width:50px">صورة</th><th style="padding:4px 8px;text-align:center;width:60px">إجراء</th></tr>';
+
+    keys.forEach(function(key, i) {
+      var parts = key.split('_');
+      var rowIdx = parseInt(parts[0]);
+      var level = parts[1];
+      var q = getQuestionAt(sheetName, rowIdx, level);
+      if (!q) return;
+
+      if (level === 'easy') eC++;
+      else if (level === 'med') mC++;
+      else hC++;
+
+      var lvlColor = level === 'easy' ? '#10b981' : level === 'med' ? '#f97316' : '#ef4444';
+      var lvlName = level === 'easy' ? 'سهل' : level === 'med' ? 'متوسط' : 'صعب';
+      var hasImg = isUrl(q.qImg) || isUrl(q.aImg);
+
+      html += '<tr style="border-top:1px solid rgba(255,255,255,.05)">';
+      html += '<td style="padding:4px 8px;color:var(--mu)">' + (i+1) + '</td>';
+      html += '<td style="padding:4px 8px;color:' + lvlColor + ';font-weight:700">' + lvlName + '</td>';
+      html += '<td style="padding:4px 8px">' + esc(q.q.substring(0,80)) + (q.q.length>80?'...':'') + '</td>';
+      html += '<td style="padding:4px 8px;color:var(--gr);font-weight:700">' + esc(q.answer.substring(0,40)) + '</td>';
+      html += '<td style="padding:4px 8px;text-align:center">' + (hasImg ? '🖼' : '⚠️') + '</td>';
+      html += '<td style="padding:4px 8px;text-align:center;display:flex;gap:3px;justify-content:center">';
+      html += '<button class="tool-btn secondary" style="font-size:.6rem;padding:1px 6px" onclick="document.getElementById(\'selModal\').classList.remove(\'on\');goToSelectedQ(\'' + esc(sheetName) + '\',' + rowIdx + ',\'' + level + '\')">تعديل</button>';
+      html += '<button class="tool-btn danger" style="font-size:.6rem;padding:1px 4px" onclick="delete SEL[\'' + esc(sheetName) + '\'][\'' + key + '\'];showSelectedPage();refreshSel()">✗</button>';
+      html += '</td></tr>';
+    });
+
+    html += '</table>';
+    html += '<div style="padding:4px 14px;font-size:.7rem;color:var(--mu);background:rgba(0,0,0,.15)">سهل: ' + eC + ' | متوسط: ' + mC + ' | صعب: ' + hC + '</div>';
+    html += '</div>';
+  });
+
+  if (totalAll === 0) {
+    html = '<div style="text-align:center;padding:40px;color:var(--mu)">لا توجد أسئلة محددة<br><br>اضغط "اختر هذا السؤال" أو "تحديد أفضل 100" أولاً</div>';
+  }
+
+  stats.innerHTML = 'إجمالي المحدد: <strong style="color:var(--or)">' + totalAll + '</strong> سؤال';
+  content.innerHTML = html;
+  document.getElementById('selModal').classList.add('on');
+}
+
+function goToSelectedQ(sheet, rowIdx, level) {
+  if (sheet !== currentSheet) {
+    currentSheet = sheet;
+    diffFilter = 'all';
+    buildFilteredIndices();
+    renderTabs();
+  }
+  // Find the matching entry in filteredIndices
+  for (var i = 0; i < filteredIndices.length; i++) {
+    if (filteredIndices[i].rowIdx === rowIdx && filteredIndices[i].level === level) {
+      currentIndex = i;
+      showQuestion();
+      return;
+    }
+  }
+  toast('السؤال غير موجود بالفلتر الحالي');
+}
+
+function exportSelected() {
+  const wb = XLSX.utils.book_new();
+  let totalExported = 0;
+
+  Object.keys(allData).forEach(name => {
+    const sel = SEL[name];
+    if (!sel || Object.keys(sel).length === 0) return;
+
+    const sheet = allData[name];
+    const cols = detectColumns(sheet);
+    if (!cols || !cols.twoHeaders) return;
+    const offset = 2;
+
+    // Collect selected questions by level
+    const easy = [], med = [], hard = [];
+    Object.keys(sel).forEach(key => {
+      const [rowStr, level] = key.split('_');
+      const r = parseInt(rowStr) + offset;
+      const row = sheet[r];
+      if (!row) return;
+      const val = (i) => (i >= 0 && row[i] != null) ? String(row[i]).trim() : '';
+
+      if (level === 'easy' && val(cols.easyQ)) {
+        easy.push([val(cols.easyQ), val(cols.easyQImg), val(cols.easyA), val(cols.easyAImg)]);
+      } else if (level === 'med' && val(cols.medQ)) {
+        med.push([val(cols.medQ), val(cols.medQImg), val(cols.medA), val(cols.medAImg)]);
+      } else if (level === 'hard' && val(cols.hardQ)) {
+        hard.push([val(cols.hardQ), val(cols.hardQImg), val(cols.hardA), val(cols.hardAImg)]);
+      }
+    });
+
+    const maxRows = Math.max(easy.length, med.length, hard.length);
+    if (maxRows === 0) return;
+
+    const data = [
+      ['#', 'سهل', '', '', '', 'متوسط', '', '', '', 'صعب', '', '', ''],
+      ['', 'السؤال', 'صورة السؤال', 'الجواب', 'صورة الجواب', 'السؤال', 'صورة السؤال', 'الجواب', 'صورة الجواب', 'السؤال', 'صورة السؤال', 'الجواب', 'صورة الجواب']
+    ];
+
+    for (let i = 0; i < maxRows; i++) {
+      const row = [i + 1];
+      row.push(...(easy[i] || ['', '', '', '']));
+      row.push(...(med[i] || ['', '', '', '']));
+      row.push(...(hard[i] || ['', '', '', '']));
+      data.push(row);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, name);
+    totalExported += easy.length + med.length + hard.length;
+  });
+
+  if (totalExported === 0) {
+    toast('لم يتم تحديد أي أسئلة! اختر أسئلة أولاً');
+    return;
+  }
+
+  XLSX.writeFile(wb, 'أسئلة_محددة.xlsx');
+  toast('تم تصدير ' + totalExported + ' سؤال محدد!');
+}
+</script>
+</body>
+</html>
