@@ -190,8 +190,8 @@ select.edit-input{cursor:pointer}
     <h1>محرر الأسئلة - عين العقل</h1>
     <div class="header-actions">
       <span id="autoSaveStatus"></span>
-      <label class="tool-btn secondary" style="cursor:pointer">رفع ملف<input type="file" id="fileInput" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none"></label>
-      <label class="tool-btn secondary" style="cursor:pointer">+ إضافة ملف<input type="file" id="addFileInput" accept=".xlsx,.xls" onchange="addFile(event)" style="display:none"></label>
+      <label class="tool-btn secondary" style="cursor:pointer;position:relative;overflow:hidden">رفع ملف<input type="file" accept=".xlsx,.xls" onchange="loadFile(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px"></label>
+      <label class="tool-btn secondary" style="cursor:pointer;position:relative;overflow:hidden">+ إضافة ملف<input type="file" accept=".xlsx,.xls" onchange="addFile(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px"></label>
       <select id="imgSource" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(139,92,246,.3);background:#1c1b38;color:#a78bfa;font-family:inherit;font-size:.78rem;font-weight:700">
         <option value="all">كل المصادر</option>
         <option value="wiki">ويكيبيديا فقط</option>
@@ -221,10 +221,10 @@ select.edit-input{cursor:pointer}
   </div>
 </div>
 
-<label id="uploadZone" class="upload-zone" style="display:block;cursor:pointer">
+<label id="uploadZone" class="upload-zone" style="display:block;cursor:pointer;position:relative;overflow:hidden">
   <h2>ارفع ملف الأسئلة</h2>
   <p>اضغط هنا لاختيار ملف Excel (.xlsx)</p>
-  <input type="file" accept=".xlsx,.xls" onchange="loadFile(event)" style="display:none">
+  <input type="file" accept=".xlsx,.xls" onchange="loadFile(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px">
 </label>
 
 <div id="mainArea">
@@ -482,7 +482,7 @@ function renderFileTabs() {
       f.name + ' <span style="font-size:.65rem;color:#64748b">(' + count + ')</span>' +
       ' <span class="ftb-close" onclick="closeFileTab(' + i + ',event)">✕</span></button>';
   });
-  html += '<label class="file-tab-add-btn" style="cursor:pointer">+ إضافة ملف<input type="file" accept=".xlsx,.xls" onchange="addFileAsTab(event)" style="display:none"></label>';
+  html += '<label class="file-tab-add-btn" style="cursor:pointer;position:relative;overflow:hidden">+ إضافة ملف<input type="file" accept=".xlsx,.xls" onchange="addFileAsTab(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px"></label>';
   wrap.innerHTML = html;
 }
 
