@@ -18,6 +18,7 @@
   --tx:#f1f5f9;--mu:#94a3b8;--mu2:#64748b;
 }
 html,body{height:100%;overflow:hidden}
+@media(max-width:1200px){html,body{overflow:auto}}
 body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(ellipse 1400px 1000px at 85% -5%,rgba(139,92,246,.07),transparent),
@@ -176,49 +177,73 @@ select.edit-input{cursor:pointer}
 
 #autoSaveStatus{font-size:.7rem;color:#10b981;margin-right:auto}
 
-/* ===== iPad & Tablet responsive ===== */
-@media(max-width:1100px){
+/* ===== iPad & Tablet & Mobile responsive ===== */
+@media(max-width:1200px){
+  /* Header — أزرار صغيرة ومرتبة */
+  .header{padding:6px 10px}
+  .header-actions{gap:3px}
+  .tool-btn{padding:4px 8px;font-size:.62rem}
+  h1{font-size:.9rem}
+
+  /* الفئات — سكرول أفقي بدل فوق بعض */
+  .tabs-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:5px 10px;gap:3px;scrollbar-width:none}
+  .tabs-row::-webkit-scrollbar{display:none}
+  .tab{padding:4px 10px;font-size:.65rem;white-space:nowrap;flex-shrink:0}
+
+  /* فلتر الصعوبة */
+  .diff-tabs{padding:3px 10px;gap:3px}
+  .diff-tab{padding:3px 8px;font-size:.6rem}
+
+  /* الإحصائيات */
+  .stats-bar{padding:3px 10px;font-size:.6rem;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .stats-bar::-webkit-scrollbar{display:none}
+  .stat{white-space:nowrap;flex-shrink:0}
+
+  /* المحتوى — عمودي */
   .content-wrap{flex-direction:column;overflow-y:auto}
-  .card-side{width:100%;border-left:none;border-bottom:1px solid rgba(139,92,246,.1);padding:12px;max-height:50vh;overflow-y:auto}
-  .edit-side{padding:12px 16px}
-  .qc-img{height:200px}
-  .qc-content{font-size:1.4rem;min-height:80px;padding:12px}
-  .eye-btn{font-size:1.1rem;padding:10px}
-  .nav-btn{padding:8px 14px;font-size:.88rem}
-  .select-btn{font-size:1rem;padding:10px}
-  .search-side{width:90vw;left:5vw;top:60px;height:60vh}
-}
-@media(max-width:768px){
-  .header{padding:8px 12px}
-  .header-actions{gap:4px}
-  .tool-btn{padding:5px 10px;font-size:.7rem}
-  h1{font-size:1rem}
-  .tabs-row{padding:4px 10px;gap:3px}
-  .tab{padding:4px 10px;font-size:.68rem}
-  .diff-tabs{padding:3px 10px}
-  .diff-tab{padding:3px 8px;font-size:.65rem}
-  .stats-bar{padding:3px 10px;font-size:.65rem}
-  .content-wrap{flex-direction:column;overflow-y:auto}
-  .card-side{width:100%;border-left:none;padding:10px;max-height:45vh}
-  .edit-side{padding:10px 12px;gap:10px}
-  .qc-img{height:150px}
-  .qc-content{font-size:1.2rem;min-height:60px;padding:10px}
-  .qc-body{padding:12px;gap:8px}
-  .eye-btn{font-size:1rem;padding:8px}
+
+  /* البطاقة — صغيرة ومضغوطة */
+  .card-side{width:100%;border-left:none;border-bottom:1px solid rgba(139,92,246,.1);padding:8px;max-height:none;overflow:visible}
+  .qc{max-width:100%}
+  .qc-img{height:140px}
+  .qc-content{font-size:1.1rem;min-height:50px;padding:8px}
+  .qc-body{padding:10px;gap:8px}
+  .eye-btn{font-size:.9rem;padding:7px;border-radius:10px}
+
+  /* التنقل */
   .nav-row{gap:6px}
-  .nav-btn{padding:6px 10px;font-size:.8rem}
-  .nav-counter{font-size:.9rem}
-  .select-btn{font-size:.9rem;padding:8px}
-  .diff-badges{gap:4px}
-  .diff-badge{padding:4px 10px;font-size:.75rem}
-  .edit-input{padding:8px 10px;font-size:.85rem}
-  .edit-label{font-size:.78rem}
-  .edit-actions .tool-btn{padding:8px 10px;font-size:.78rem;min-width:80px}
-  .file-tabs-row{padding:6px 10px}
-  .file-tab-btn{padding:6px 12px;font-size:.72rem}
-  .file-tab-add-btn{padding:6px 12px;font-size:.78rem}
+  .nav-btn{padding:6px 10px;font-size:.75rem;border-radius:8px}
+  .nav-counter{font-size:.85rem;min-width:60px}
+  .select-btn{font-size:.85rem;padding:8px;border-radius:10px}
+  .select-counter{font-size:.75rem}
+  .diff-badges{gap:3px}
+  .diff-badge{padding:4px 8px;font-size:.7rem;border-radius:6px}
+
+  /* التعديل */
+  .edit-side{padding:10px 12px;gap:10px}
+  .edit-input{padding:7px 10px;font-size:.82rem;border-radius:8px}
+  .edit-label{font-size:.72rem}
+  textarea.edit-input{min-height:45px}
+  .edit-actions{gap:5px}
+  .edit-actions .tool-btn{padding:7px 8px;font-size:.72rem;min-width:70px}
+  .img-field-row button{padding:7px 10px;font-size:.7rem}
+  .img-preview{max-height:80px}
+
+  /* تابات الملفات */
+  .file-tabs-row{padding:5px 10px;gap:3px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .file-tabs-row::-webkit-scrollbar{display:none}
+  .file-tab-btn{padding:5px 10px;font-size:.65rem;white-space:nowrap;flex-shrink:0}
+  .file-tab-add-btn{padding:5px 10px;font-size:.7rem;white-space:nowrap;flex-shrink:0}
+
+  /* البحث */
+  .search-side{width:90vw;left:5vw;top:50px;height:60vh;min-width:auto}
+
+  /* المودال */
   .modal{padding:16px;max-width:95vw}
-  .search-side{width:95vw;left:2.5vw;top:50px;height:55vh;min-width:auto}
+
+  /* منطقة الرفع */
+  .upload-zone{margin:40px auto;padding:30px 20px}
+  .upload-zone h2{font-size:1.1rem}
 }
 
 /* scrollbar */
